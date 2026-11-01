@@ -8,6 +8,8 @@ Usage:
   python3 scripts/deploy-gallery.py
   python3 scripts/deploy-gallery.py --custom-domain motion.singleoriginapps.com
 """
+from __future__ import annotations
+
 import argparse
 from pathlib import Path
 import shutil
@@ -22,6 +24,16 @@ def run(cmd, cwd=None, check=True):
         print(f"Error: command failed with code {res.returncode}", file=sys.stderr)
         sys.exit(res.returncode)
     return res.returncode
+
+
+def get_git_config(root: Path, key: str) -> str | None:
+    try:
+        val = subprocess.check_output(["git", "config", key], cwd=root).decode().strip()
+        if val:
+            return val
+    except Exception:
+        pass
+    return None
 
 
 def get_remote_url(root: Path) -> str:
@@ -67,7 +79,14 @@ def main():
 
     # 4. Push directly to gh-pages branch using an isolated git instance
     print(f"\nPushing distribution to 'gh-pages' branch on {remote_url}...")
+    shutil.rmtree(dist_dir / ".git", ignore_errors=True)
+    author_name = get_git_config(root, "user.name")
+    author_email = get_git_config(root, "user.email")
     run(["git", "init"], cwd=dist_dir)
+    if author_name:
+        run(["git", "config", "user.name", author_name], cwd=dist_dir)
+    if author_email:
+        run(["git", "config", "user.email", author_email], cwd=dist_dir)
     run(["git", "checkout", "-B", "gh-pages"], cwd=dist_dir)
     run(["git", "add", "-A"], cwd=dist_dir)
     run(["git", "commit", "-m", "Deploy web gallery to GitHub Pages [skip ci]"], cwd=dist_dir)
