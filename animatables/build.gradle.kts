@@ -7,10 +7,13 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
     `maven-publish`
+    signing
 }
 
 group = "com.singleoriginapps"
-version = "0.1.0-SNAPSHOT"
+version = providers.environmentVariable("RELEASE_VERSION")
+    .orElse(providers.gradleProperty("version"))
+    .getOrElse("0.1.0-SNAPSHOT")
 
 kotlin {
     android {
@@ -74,5 +77,24 @@ publishing {
             developers { developer { id.set("flatspyder"); name.set("Single Origin Apps") } }
             scm { url.set("https://github.com/flatspyder/animatables"); connection.set("scm:git:https://github.com/flatspyder/animatables.git") }
         }
+    }
+}
+
+val signingKey = System.getenv("SIGNING_KEY") ?: findProperty("signing.key") as? String
+val signingPassword = System.getenv("SIGNING_PASSWORD") ?: findProperty("signing.password") as? String
+val signingKeyId = System.getenv("SIGNING_KEY_ID") ?: findProperty("signing.keyId") as? String
+
+signing {
+    if (!signingKey.isNullOrBlank()) {
+        useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+    } else {
+        useGpgCmd()
+    }
+    sign(publishing.publications)
+}
+
+tasks.withType<Sign>().configureEach {
+    onlyIf {
+        gradle.startParameter.taskNames.any { it.contains("publish", ignoreCase = true) }
     }
 }
