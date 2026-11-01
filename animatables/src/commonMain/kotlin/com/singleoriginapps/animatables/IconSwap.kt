@@ -9,8 +9,6 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
@@ -23,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -35,6 +34,7 @@ private object IconSwapMotionTokens {
     const val DurationMillis = 250
     const val InitialScale = .25f
     val BlurRadius = 2.dp
+    val BlurOutsets = LayerOutsets(BlurRadius * 2)
     private val Easing = CubicBezierEasing(.42f, 0f, .58f, 1f)
     fun <T> transition(): TweenSpec<T> = tween(durationMillis = DurationMillis, easing = Easing)
 }
@@ -83,18 +83,15 @@ public fun <T> IconSwap(
             targetState = targetState,
             contentAlignment = Alignment.Center,
             transitionSpec = {
-                ((fadeIn(effects) + scaleIn(
+                (scaleIn(
                     spatial,
                     initialScale = IconSwapMotionTokens.InitialScale,
-                    transformOrigin = TransformOrigin.Center
-                ))
-                        togetherWith
-                        (fadeOut(effects) + scaleOut(
-                            spatial,
-                            targetScale = IconSwapMotionTokens.InitialScale,
-                            transformOrigin = TransformOrigin.Center
-                        )))
-                    .using(SizeTransform(clip = false) { _, _ -> size })
+                    transformOrigin = TransformOrigin.Center,
+                ) togetherWith scaleOut(
+                    spatial,
+                    targetScale = IconSwapMotionTokens.InitialScale,
+                    transformOrigin = TransformOrigin.Center,
+                )).using(SizeTransform(clip = false) { _, _ -> size })
             },
             label = "Icon swap",
         ) { state ->
@@ -115,16 +112,17 @@ public fun <T> IconSwap(
                                 1f
                             ) else 0f
                         transformOrigin = TransformOrigin.Center
-                        alpha = opacity
+                        alpha = opacity * if (enabled) 1f - blur.coerceIn(0f, 1f) else 1f
                         scaleX = IconSwapMotionTokens.InitialScale +
                                 (1f - IconSwapMotionTokens.InitialScale) * entrance
                         scaleY = scaleX
-                        renderEffect = motionBlurEffect(
+                        motionBlur(
                             IconSwapMotionTokens.BlurRadius.toPx() *
                                     if (!enabled) 0f else maxOf(
                                         blur.coerceIn(0f, 1f),
                                         1f - opacity
                                     ),
+                            IconSwapMotionTokens.BlurOutsets,
                         )
                     },
                 contentAlignment = Alignment.Center,

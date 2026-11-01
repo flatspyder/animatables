@@ -1,5 +1,8 @@
 package com.singleoriginapps.animatables
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
@@ -25,7 +28,7 @@ class ZeroDurationScaleTest {
             MaterialTheme {
                 MotionContent(state.value) { complete ->
                     if (complete) {
-                        CompletionIndicator(true, label = "Upload complete")
+                        SuccessCheck(true, modifier = Modifier.size(32.dp), label = "Upload complete")
                         Text("Saved")
                     } else Text("Saving")
                 }

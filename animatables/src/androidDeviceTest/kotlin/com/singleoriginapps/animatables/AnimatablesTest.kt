@@ -1,5 +1,8 @@
 package com.singleoriginapps.animatables
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -191,8 +194,9 @@ class AnimatablesTest {
         compose.setContent {
             MaterialTheme {
                 AnimatablesMotion(enabled = false) {
-                    CompletionIndicator(
+                    SuccessCheck(
                         complete.value,
+                        modifier = Modifier.size(32.dp),
                         label = "Upload complete",
                         pendingLabel = "Not uploaded"
                     )

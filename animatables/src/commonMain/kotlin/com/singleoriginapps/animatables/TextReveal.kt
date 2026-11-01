@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+
+private val TextRevealBlurOutsets = LayerOutsets(6.dp)
 
 /**
  * Reveals a short group of related lines with a staggered rise, fade, and soft focus resolve.
@@ -69,7 +72,7 @@ public fun TextReveal(
                             val fraction = if (enabled) progress.value.coerceIn(0f, 1f) else 1f
                             alpha = fraction
                             translationY = lift * (1f - fraction)
-                            renderEffect = motionBlurEffect(blur * (1f - fraction))
+                            motionBlur(blur * (1f - fraction), TextRevealBlurOutsets)
                         },
                     )
                 }

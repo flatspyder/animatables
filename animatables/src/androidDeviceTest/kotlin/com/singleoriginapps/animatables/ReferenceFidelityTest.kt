@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toPixelMap
@@ -175,6 +176,38 @@ class ReferenceFidelityTest {
         saveReferenceEvidence("text-reveal-final", complete)
         assertTrue("The reveal must visibly resolve", difference(moving, complete) > 100)
         assertEquals("The reveal must end as sharp native text", 0, difference(sharp, complete))
+    }
+
+    @Test
+    fun softFocusKeepsItsFringeOutsideFadingContentBounds() {
+        assumeTrue(Build.VERSION.SDK_INT >= 31)
+        compose.setContent {
+            MaterialTheme {
+                Box(
+                    Modifier.size(80.dp).background(Color.White).testTag("blur-fringe"),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        Modifier.size(24.dp).graphicsLayer {
+                            alpha = .5f
+                            motionBlur(3.dp.toPx(), LayerOutsets(6.dp))
+                        }.background(Color.Black),
+                    )
+                }
+            }
+        }
+        val image = compose.onNodeWithTag("blur-fringe").captureToImage()
+        val pixels = image.toPixelMap()
+        // The 24dp square occupies the middle 30% of this 80dp capture. A soft edge must
+        // remain visible beyond that square while alpha compositing is active.
+        val left = (image.width * .35f).toInt()
+        val right = (image.width * .65f).toInt()
+        var fringe = 0
+        for (y in 0 until image.height) for (x in 0 until image.width) {
+            if ((x < left || x >= right) && pixels[x, y].red < .98f) fringe++
+        }
+        saveReferenceEvidence("soft-focus-unclipped-fringe", image)
+        assertTrue("Fading content must retain the soft fringe beyond its layout bounds", fringe > 10)
     }
 
     @Test

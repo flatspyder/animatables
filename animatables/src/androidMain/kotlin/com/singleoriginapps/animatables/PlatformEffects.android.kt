@@ -3,6 +3,7 @@ package com.singleoriginapps.animatables
 import android.graphics.Shader
 import android.icu.text.BreakIterator
 import android.os.Build
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.asComposeRenderEffect
 
@@ -41,3 +42,5 @@ internal actual fun graphemes(value: String): List<String> {
 // Compose's Android MotionDurationScale supplies the platform setting in the shared observer.
 @androidx.compose.runtime.Composable
 internal actual fun rememberPlatformMotionEnabled(): Boolean = true
+
+internal actual fun motionBlurOutsets(blurOutsets: LayerOutsets): LayerOutsets = blurOutsets

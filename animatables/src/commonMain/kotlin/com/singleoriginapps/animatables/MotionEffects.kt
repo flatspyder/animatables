@@ -12,9 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.graphics.graphicsLayer
 
 /** Bounded decorative timing, separate from the theme's spatial and effects springs. */
 internal object MotionEffectTokens {
@@ -57,9 +55,4 @@ internal fun rememberMotionEnabled(): Boolean {
         }
     }
     return appEnabled && (synchronousScale?.scaleFactor?.let { it > 0f } ?: effectScaleEnabled)
-}
-
-/** Reads the radius in the draw phase. Prefer [motionBlurEffect] inside an existing layer. */
-internal fun Modifier.motionBlur(radiusPx: () -> Float): Modifier = graphicsLayer {
-    renderEffect = motionBlurEffect(radiusPx().coerceAtLeast(0f))
 }

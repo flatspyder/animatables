@@ -8,8 +8,6 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
@@ -20,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -40,6 +39,7 @@ private object TextSwapMotionTokens {
     const val IncomingDelayMillis = 150
     val Travel = 4.dp
     val BlurRadius = 2.dp
+    val BlurOutsets = LayerOutsets(BlurRadius * 2)
     private val Easing = CubicBezierEasing(.42f, 0f, .58f, 1f)
     fun <T> phase(delayMillis: Int = 0): TweenSpec<T> = tween(
         durationMillis = PhaseDurationMillis,
@@ -112,11 +112,9 @@ internal fun TextSwapContent(
             targetState = target,
             contentAlignment = Alignment.Center,
             transitionSpec = {
-                (
-                        fadeIn(incomingEffects) + slideInVertically(incomingMovement) { if (enabled) travel else 0 }
-                                togetherWith
-                                fadeOut(outgoingEffects) + slideOutVertically(outgoingMovement) { if (enabled) -travel else 0 }
-                        ).using(SizeTransform(clip = false) { _, _ -> size })
+                (slideInVertically(incomingMovement) { if (enabled) travel else 0 }
+                    togetherWith slideOutVertically(outgoingMovement) { if (enabled) -travel else 0 })
+                    .using(SizeTransform(clip = false) { _, _ -> size })
             },
             label = "Text state handoff",
         ) { state ->
@@ -127,8 +125,11 @@ internal fun TextSwapContent(
                 label = "Text state focus",
             ) { phase -> if (phase == EnterExitState.Visible) 0f else 1f }
             Box(Modifier.graphicsLayer {
-                renderEffect =
-                    motionBlurEffect(if (enabled) softness.coerceIn(0f, 1f) * blur else 0f)
+                val focus = if (enabled) softness.coerceIn(0f, 1f) else 0f
+                // Keep opacity and focus on one expanded layer: an outer fade layer would crop
+                // the softened edges back to the unblurred text bounds.
+                alpha = 1f - focus
+                motionBlur(focus * blur, TextSwapMotionTokens.BlurOutsets)
             }, contentAlignment = Alignment.Center) { content(state.text) }
         }
     }
