@@ -7,10 +7,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -27,17 +30,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
+import com.singleoriginapps.animatables.AnimatablesMotion
 import com.singleoriginapps.animatables.IconSwap
 import com.singleoriginapps.animatables.NumberFlowAnchor
 import com.singleoriginapps.animatables.NumberPopIn
 import com.singleoriginapps.animatables.ReasoningStream
 import com.singleoriginapps.animatables.ShimmerText
 import com.singleoriginapps.animatables.StreamingText
+import com.singleoriginapps.animatables.CompletionSpinner
+import com.singleoriginapps.animatables.CompletionSpinnerStyle
 import com.singleoriginapps.animatables.SuccessCheck
 import com.singleoriginapps.animatables.TextReveal
 import com.singleoriginapps.animatables.TextStateSwap
@@ -55,12 +63,19 @@ internal fun SystemMotionLabel() {
 }
 
 @Composable
-internal fun MotionEffectDemo(id: String) {
+internal fun MotionEffectDemo(
+    id: String,
+    spinnerStep: Int = 0,
+    spinnerWavy: Boolean = false,
+    spinnerDeterminate: Boolean = true,
+    customSuccessIcon: Boolean = false,
+) {
     when (id) {
         "number" -> NumberDemo()
         "text-swap" -> TextSwapDemo()
         "icon" -> IconDemo()
-        "success" -> SuccessDemo()
+        "success" -> SuccessDemo(customSuccessIcon)
+        "spinner" -> SpinnerDemo(spinnerStep, spinnerWavy, spinnerDeterminate, customSuccessIcon)
         "reveal" -> RevealDemo()
         "shimmer" -> ShimmerDemo()
         "thinking" -> ThinkingDemo()
@@ -154,7 +169,7 @@ private fun DemoSymbol(close: Boolean) {
 }
 
 @Composable
-private fun SuccessDemo() {
+private fun SuccessDemo(customSuccessIcon: Boolean) {
     var complete by rememberSaveable { mutableStateOf(true) }
     var replay by rememberSaveable { mutableIntStateOf(0) }
     DemoColumn {
@@ -163,7 +178,8 @@ private fun SuccessDemo() {
             Modifier.size(64.dp),
             replayKey = replay,
             label = "Changes saved",
-            pendingLabel = "Ready to save"
+            pendingLabel = "Ready to save",
+            successIcon = if (customSuccessIcon) ({ CustomSuccessIcon() }) else null,
         )
         Text(
             if (complete) "Changes saved" else "Ready to save",
@@ -350,10 +366,72 @@ internal fun effectApiExample(id: String): String? = when (id) {
     "text-swap" -> "TextStateSwap(text = status)"
     "icon" -> "IconSwap(targetState = expanded) {\n  state -> IconFor(state)\n}"
     "success" -> "SuccessCheck(complete = saved,\n  replayKey = replay)"
+    "spinner" -> "CompletionSpinner(\n  progress = { progress },\n  complete = complete,\n  style = CompletionSpinnerStyle.Wavy,\n)"
     "reveal" -> "TextReveal(lines = lines,\n  replayKey = replay)"
     "shimmer" -> "ShimmerText(text = status,\n  active = running, replayKey = replay)"
     "thinking" -> "ThinkingStates(text = taskStatus,\n  active = running)"
     "reasoning" -> "ReasoningStream(entries = activityLog,\n  maxVisibleEntries = 2, active = running)"
     "streaming" -> "StreamingText(text = responseSoFar,\n  streamKey = responseId)"
     else -> null
+}
+
+@Composable
+private fun SpinnerDemo(step: Int, wavy: Boolean, determinate: Boolean, customSuccessIcon: Boolean) {
+    val completed = step % 2 != 0
+    val progress = if (completed) 1f else .35f
+    val complete = completed && !determinate
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        CompletionSpinner(
+            progress = if (determinate) ({ progress }) else null,
+            complete = complete,
+            style = if (wavy) CompletionSpinnerStyle.Wavy else CompletionSpinnerStyle.Standard,
+            successIcon = if (customSuccessIcon) ({ CustomSuccessIcon() }) else null,
+        )
+        Text(
+            if (complete || determinate && progress >= 1f) "Task complete"
+            else if (determinate) "${(progress * 100).toInt()}% complete" else "Working…",
+            style = MaterialTheme.typography.labelLarge,
+        )
+    }
+}
+
+@Preview(name = "Completion spinner resting states", widthDp = 412, heightDp = 360, showBackground = true)
+@Composable
+private fun CompletionSpinnerRestingPreview() {
+    CatalogTheme {
+        AnimatablesMotion(false) {
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+                Text("Standard · wavy · complete", style = MaterialTheme.typography.titleMedium)
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    CompletionSpinner(progress = { .4f })
+                    CompletionSpinner(progress = { .4f }, style = CompletionSpinnerStyle.Wavy)
+                    CompletionSpinner(progress = { 1f })
+                }
+                Text("Indeterminate · animations disabled", style = MaterialTheme.typography.titleMedium)
+                Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                    CompletionSpinner()
+                    CompletionSpinner(style = CompletionSpinnerStyle.Wavy)
+                    CompletionSpinner(complete = true)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CustomSuccessIcon() {
+    val color = LocalContentColor.current
+    Canvas(Modifier.fillMaxSize()) {
+        val icon = Path().apply {
+            moveTo(size.width * .5f, 0f)
+            lineTo(size.width, size.height * .5f)
+            lineTo(size.width * .5f, size.height)
+            lineTo(0f, size.height * .5f)
+            close()
+        }
+        drawPath(icon, color)
+    }
 }

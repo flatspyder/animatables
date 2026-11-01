@@ -47,11 +47,11 @@ All functions are in `com.singleoriginapps.animatables`. Check source for option
 | Short status string replacement | `AnimatedStatusText(text)` | Caller; do not stream a new value every frame |
 | Actual notification/item count | `AnimatedCountBadge(count)` | Caller; supply the actual count, not a capped display string |
 | Placeholder to loaded content | `LoadingContent(loading, placeholder = { ... }) { ... }` | Caller; loading state, data, error/retry |
-| Foreground completion feedback | `CompletionIndicator(complete)` | Caller; real task state, no fake completion timer |
+| Material progress becoming a completion check | `CompletionSpinner(progress = { fraction }, style = CompletionSpinnerStyle.Wavy)` | Caller; progress/completion, cancellation and long-running pause/hide |
+| Foreground completion feedback | `SuccessCheck(complete, modifier = Modifier.size(32.dp))` | Caller; real task state and deliberate replay identity |
 | Formatted metric with place-value continuity | `NumberPopIn(value, decimalSeparator = '.', anchor = NumberFlowAnchor.Center)` | Caller; formatted value, locale separator, deliberate replay identity |
 | Deliberate text handoff | `TextStateSwap(text, replayKey = eventId)` | Caller; real label state |
 | Icon swap inside a labeled control | `IconSwap(targetState) { state -> ... }` | Caller; keep button semantics/hit target on host |
-| Expressive foreground success | `SuccessCheck(complete, replayKey = eventId)` | Caller; actual result, replay only deliberately |
 | Short grouped introduction | `TextReveal(lines, replayKey = eventId)` | Caller; lines wrap naturally |
 | Finite text highlight | `ShimmerText(text, active = true)` | Caller; plays two two-second sweeps, then rests |
 | Truthful activity state | `ThinkingStates(text, active = working)` | Caller; state changes only with actual work |
@@ -129,7 +129,38 @@ A state swap is suitable for a small result, label, or icon. Full destinations n
 
 `TextStateSwap` centers labels by default and hands off through 4dp travel and 2dp soft focus: the 150ms exit completes before the 150ms entrance begins. An explicitly supplied `TextStyle.textAlign` is retained. `AnimatedStatusText` uses this handoff as its convenience API. `ThinkingStates` centers its activity label, uses 8dp travel and 150ms phases with a 50ms incoming offset, and combines the transition with a bounded highlight. Neither component generates status messages.
 
-`IconSwap` uses a centered 250ms scale/focus handoff with a 2dp blur accent; preserve the host button's semantics and target. `SuccessCheck` stays full size and arrives through a 500ms upward fade with 40dp travel, 80° rotation, and 10dp soft focus. Its 500ms check stroke begins after an 80ms lead-in. Rapid reversal retargets the visible mark continuously rather than restarting its spatial position. Prefer the calmer `CompletionIndicator` when emphasis is unnecessary. Blur is an API 31+ accent; earlier Android retains the other transformations and a sharp resting state.
+`IconSwap` uses a centered 250ms scale/focus handoff with a 2dp blur accent; preserve the host button's semantics and target. `SuccessCheck` stays full size and arrives through a 500ms upward fade with 40dp travel, 80° rotation, and 10dp soft focus. Its 500ms check stroke begins after an 80ms lead-in. Rapid reversal retargets the visible mark continuously rather than restarting its spatial position. Use `Modifier.size(...)` to choose a compact or larger presentation; the default size is 48dp. Blur is an API 31+ accent; earlier Android retains the other transformations and a sharp resting state.
+
+Android soft-focus layers reserve temporary drawing outsets during blur and clear them at rest without changing measured layout. Skia uses its normal filtered layer path: expanded outsets in the current backend can cache the initial opacity and leave animated content invisible. Both adapters clear blur at rest; inspect repeated playback on each shipped target.
+
+`CompletionSpinner` keeps the native Material circular indicator while pending (`CompletionSpinnerStyle.Standard` or `.Wavy`). Supply `progress = { fraction }` for determinate loading, or omit it for indeterminate loading. Either 100% or `complete = true` uses the same shared success entrance as `SuccessCheck`, with no shape morph. The initial completed spinner stays still; resetting both inputs returns to loading quietly. State is not latched. NaN progress is zero and out-of-range values are clamped. The completion fill/content use theme `primaryContainer`/`onPrimaryContainer`; customize `completeColor` and `completeContentColor` together for the host app’s meaning. Localize `label`/`completeLabel`. Motion disabled shows the target check immediately and indeterminate loading as a static partial indicator, preserving indeterminate semantics. Keep timers, cancellation and any long-running pause/hide control in the host.
+
+Both `SuccessCheck` and `CompletionSpinner` accept an optional `successIcon: (@Composable () -> Unit)?`. Omitting it retains the delayed drawn check. Custom content is centered in half the indicator bounds, inherits `LocalContentColor`, and fades in after the same delay without changing its shape. The parent owns accessible outcome labels, so a decorative `Icon` should use `contentDescription = null`. Size the whole component using `Modifier.size(...)`; a compact success uses `Modifier.size(32.dp)`.
+
+```kotlin
+CompletionSpinner(
+    progress = { uploadFraction },
+    complete = uploadSucceeded,
+    style = CompletionSpinnerStyle.Wavy,
+    label = "Uploading",
+    completeLabel = "Upload complete",
+)
+```
+
+For a custom icon, supply the host’s `Painter` as `successPainter`:
+
+```kotlin
+SuccessCheck(
+    complete = uploadSucceeded,
+    modifier = Modifier.size(32.dp),
+    label = "Upload complete",
+    successIcon = {
+        Icon(painter = successPainter, contentDescription = null)
+    },
+)
+```
+
+`Icon` is from Material 3; `size` and `dp` are the standard Compose layout/unit imports. The same slot works on `CompletionSpinner`.
 
 `ShimmerText` performs two two-second neutral luminance sweeps at normal scale, then leaves ordinary static text. The moving peak uses the original glyph color. Shaded regions move that color toward `MaterialTheme.colorScheme.surface`; when the supplied color/alpha already exceeds 4.5:1 calculated contrast against that surface, shading is bounded to retain at least 4.5:1. A supplied color already at or below 4.5:1 is preserved rather than faded further. `SrcIn` retains caller glyph alpha. The contrast calculation is specific to the theme surface: verify the actual background when the component is placed elsewhere. `ThinkingStates` uses the same highlight. `active = false` stops it, and Android/app-disabled animation leaves a readable label. Do not change replay keys repeatedly to create a perpetual loop.
 

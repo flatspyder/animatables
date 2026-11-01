@@ -67,7 +67,7 @@ import androidx.compose.ui.unit.sp
 import com.singleoriginapps.animatables.AnimatablesMotion
 import com.singleoriginapps.animatables.AnimatedCountBadge
 import com.singleoriginapps.animatables.AnimatedStatusText
-import com.singleoriginapps.animatables.CompletionIndicator
+import com.singleoriginapps.animatables.SuccessCheck
 import com.singleoriginapps.animatables.ExpandableCard
 import com.singleoriginapps.animatables.LoadingContent
 import com.singleoriginapps.animatables.MotionContent
@@ -118,6 +118,13 @@ private val demos = listOf(
         "SuccessCheck"
     ),
     Demo(
+        "spinner",
+        "Completion spinner",
+        "Material progress becomes a check when the task completes.",
+        Collection.Loading,
+        "CompletionSpinner"
+    ),
+    Demo(
         "reveal",
         "Texts reveal",
         "Lines arrive in a staggered upward sweep.",
@@ -158,6 +165,13 @@ private val demos = listOf(
         "Expansion that keeps its place.",
         Collection.Layout,
         "ExpandableCard"
+    ),
+    Demo(
+        "02",
+        "A change in status",
+        "Short labels hand off without losing their place.",
+        Collection.Feedback,
+        "AnimatedStatusText"
     ),
     Demo(
         "03",
@@ -361,6 +375,7 @@ private fun OriginMark(modifier: Modifier = Modifier) {
 @Composable
 private fun DemoCard(demo: Demo, onInspect: (String) -> Unit) {
     var showApi by rememberSaveable { mutableStateOf(false) }
+    var spinnerStep by rememberSaveable { mutableIntStateOf(0) }
     Surface(
         shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLowest
@@ -390,7 +405,7 @@ private fun DemoCard(demo: Demo, onInspect: (String) -> Unit) {
                     )
                     .padding(16.dp), contentAlignment = Alignment.Center
             ) {
-                DemoContent(demo.id)
+                DemoContent(demo.id, spinnerStep = spinnerStep)
             }
             Text(demo.title, style = MaterialTheme.typography.titleLarge)
             Text(
@@ -398,6 +413,9 @@ private fun DemoCard(demo: Demo, onInspect: (String) -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            if (demo.id == "spinner") {
+                FilledTonalButton(onClick = { spinnerStep++ }) { Text("Toggle completion") }
+            }
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = { onInspect(demo.id) }, modifier = Modifier.weight(1f)) {
                     Text(
@@ -426,15 +444,22 @@ private fun DemoCard(demo: Demo, onInspect: (String) -> Unit) {
 }
 
 @Composable
-private fun DemoContent(id: String) {
+private fun DemoContent(
+    id: String,
+    spinnerStep: Int = 0,
+    spinnerWavy: Boolean = false,
+    spinnerDeterminate: Boolean = true,
+    customSuccessIcon: Boolean = false,
+) {
     when (id) {
         "01" -> ExpansionDemo()
+        "02" -> StatusDemo()
         "03" -> BadgeDemo()
         "04" -> LoadingDemo()
         "06" -> ContentDemo()
         "07" -> SelectionDemo()
         "08" -> MenuDemo()
-        else -> MotionEffectDemo(id)
+        else -> MotionEffectDemo(id, spinnerStep, spinnerWavy, spinnerDeterminate, customSuccessIcon)
     }
 }
 
@@ -448,6 +473,10 @@ private fun EffectInspector(
     onClose: () -> Unit
 ) {
     var centreGuide by rememberSaveable(demo.id) { mutableStateOf(false) }
+    var spinnerStep by rememberSaveable(demo.id) { mutableIntStateOf(0) }
+    var spinnerWavy by rememberSaveable(demo.id) { mutableStateOf(false) }
+    var spinnerDeterminate by rememberSaveable(demo.id) { mutableStateOf(true) }
+    var customSuccessIcon by rememberSaveable(demo.id) { mutableStateOf(false) }
     val guideColor = MaterialTheme.colorScheme.outline.copy(alpha = .45f)
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
@@ -517,7 +546,28 @@ private fun EffectInspector(
                     }
                     .padding(24.dp),
                 contentAlignment = Alignment.Center,
-            ) { DemoContent(demo.id) }
+            ) { DemoContent(demo.id, spinnerStep, spinnerWavy, spinnerDeterminate, customSuccessIcon) }
+            if (demo.id == "spinner") {
+                Text("Spinner options", style = MaterialTheme.typography.titleMedium)
+                Text("Appearance", style = MaterialTheme.typography.labelLarge)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(!spinnerWavy, { spinnerWavy = false }, label = { Text("Standard") })
+                    FilterChip(spinnerWavy, { spinnerWavy = true }, label = { Text("Wavy") })
+                }
+                Text("Progress mode", style = MaterialTheme.typography.labelLarge)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FilterChip(spinnerDeterminate, { spinnerDeterminate = true }, label = { Text("Determinate") })
+                    FilterChip(!spinnerDeterminate, { spinnerDeterminate = false }, label = { Text("Indeterminate") })
+                }
+                FilledTonalButton(onClick = { spinnerStep++ }) { Text("Toggle completion") }
+            }
+            if (demo.id == "success" || demo.id == "spinner") {
+                FilterChip(
+                    selected = customSuccessIcon,
+                    onClick = { customSuccessIcon = !customSuccessIcon },
+                    label = { Text("Use a custom success icon") },
+                )
+            }
             Text("Use in Compose", style = MaterialTheme.typography.titleMedium)
             Text(
                 effectApiExample(demo.id) ?: apiExample(demo.id),
@@ -538,7 +588,6 @@ private fun apiExample(id: String) = when (id) {
     "02" -> "AnimatedStatusText(text = status)"
     "03" -> "AnimatedCountBadge(count = unread)"
     "04" -> "LoadingContent(loading = loading,\n  placeholder = { Skeleton() },\n) { Profile() }"
-    "05" -> "CompletionIndicator(\n  complete = saved, label = \"Saved\",\n)"
     "06" -> "MotionContent(targetState = selected)\n  { item -> ItemContent(item) }"
     "07" -> "Switch(checked = enabled,\n  onCheckedChange = { enabled = it })"
     else -> "DropdownMenu(expanded = open,\n  onDismissRequest = { open = false }\n) { /* DropdownMenuItem */ }"
@@ -658,25 +707,6 @@ private fun ProfileSkeleton() {
                     .background(MaterialTheme.colorScheme.outlineVariant, CircleShape)
             )
         }
-    }
-}
-
-@Composable
-private fun CompletionDemo() {
-    var complete by rememberSaveable { mutableStateOf(false) }
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        CompletionIndicator(
-            complete,
-            Modifier.size(52.dp),
-            label = "Saved",
-            pendingLabel = "Ready to save"
-        )
-        FilledTonalButton(onClick = {
-            complete = !complete
-        }) { Text(if (complete) "Reset" else "Save changes") }
     }
 }
 
@@ -812,10 +842,8 @@ private fun RestingStatesPreview() {
                     ); AnimatedCountBadge(123)
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
-                        CompletionIndicator(
-                            true,
-                            Modifier.size(48.dp)
-                        ); CompletionIndicator(false, Modifier.size(48.dp))
+                        SuccessCheck(true, Modifier.size(32.dp))
+                        SuccessCheck(true, Modifier.size(64.dp))
                     }
                     LoadingContent(
                         false,

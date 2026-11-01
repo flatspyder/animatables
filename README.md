@@ -11,11 +11,11 @@ Theme-aware Compose Multiplatform components for readable state changes and Mate
 | `AnimatedStatusText` | Short status-label changes |
 | `AnimatedCountBadge` | Capped visual counts with the full accessible value |
 | `LoadingContent` | Structural placeholder timing and content handoff |
-| `CompletionIndicator` | Compact pending and completed states |
+| `CompletionSpinner` | Standard or wavy Material progress with the shared success entrance |
 | `NumberPopIn` | Formatted digit rolls with centre or decimal anchoring |
 | `TextStateSwap` | Two-phase label handoff with soft focus |
 | `IconSwap` | Icon replacement inside the caller's existing control |
-| `SuccessCheck` | Finite completion feedback with explicit replay |
+| `SuccessCheck` | Completion feedback with modifier sizing, explicit replay and an optional icon |
 | `TextReveal` | Staggered introduction of a short group of lines |
 | `ShimmerText` | Two finite glyph highlights |
 | `ThinkingStates` | Caller-owned activity labels |
@@ -47,7 +47,7 @@ Android uses its platform animation clock and ICU text handling. Soft focus uses
 
 ## Build
 
-Use JDK 17 or later and configure the Android SDK through `local.properties` or the normal SDK environment. iOS builds require macOS and Xcode.
+Use JDK 17 or later and Python 3, and configure the Android SDK through `local.properties` or the normal SDK environment. iOS builds require macOS and Xcode.
 
 ```sh
 ./gradlew :animatables:assembleAndroidMain :catalog:assembleDebug
