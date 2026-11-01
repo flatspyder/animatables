@@ -7,6 +7,7 @@ val releaseVersion = providers.environmentVariable("RELEASE_VERSION")
     .getOrElse("0.1.0")
 
 android {
+    sourceSets.getByName("main").kotlin.srcDir("src/shared/kotlin")
     namespace = "com.singleoriginapps.animatables.catalog"
     compileSdk { version = release(37) { minorApiLevel = 0 } }
     defaultConfig {

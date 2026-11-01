@@ -77,7 +77,7 @@ private enum class Collection(val title: String) {
     All("All"), Text("Text"), Feedback("Feedback"), Activity(
         "Activity"
     ),
-    Layout("Layout"), Loading("Loading"), Native("M3 recipes")
+    Layout("Layout"), Loading("Loading"), Audio("Audio"), Native("M3 recipes")
 }
 
 private data class Demo(
@@ -89,6 +89,11 @@ private data class Demo(
 )
 
 private val demos = listOf(
+    Demo("async-action", "Action feedback", "Save, working, success and retry in one stable control.", Collection.Feedback, "AsyncActionButton"),
+    Demo("refresh", "Refresh and recover", "Refresh saved places, simulate being offline, then retry without losing your selection.", Collection.Loading, "RefreshableContent"),
+    Demo("waveform", "Audio waveform", "A larger waveform follows supplied audio samples.", Collection.Audio, "AudioWaveform"),
+    Demo("audio-icon", "Audio level icon", "Compact audio activity inside an existing control.", Collection.Audio, "AudioLevelIcon"),
+    Demo("audio-ring", "Recording activity ring", "A reactive halo keeps the recording button in place.", Collection.Audio, "AudioActivityRing"),
     Demo(
         "number",
         "Number pop-in",
@@ -452,6 +457,11 @@ private fun DemoContent(
     customSuccessIcon: Boolean = false,
 ) {
     when (id) {
+        "async-action" -> AsyncActionDemo()
+        "refresh" -> RefreshRecoveryDemo()
+        "waveform" -> AudioDemo("waveform")
+        "audio-icon" -> AudioDemo("icon")
+        "audio-ring" -> AudioDemo("ring")
         "01" -> ExpansionDemo()
         "02" -> StatusDemo()
         "03" -> BadgeDemo()
@@ -584,6 +594,11 @@ private fun EffectInspector(
 }
 
 private fun apiExample(id: String) = when (id) {
+    "async-action" -> "AsyncActionButton(\n  state = saveState, onClick = ::save,\n  modifier = Modifier.width(240.dp),\n  label = \"Save\", workingLabel = \"Saving\",\n  successLabel = \"Saved\", errorLabel = \"Retry\",\n)"
+    "refresh" -> "RefreshableContent(\n  hasContent = items.isNotEmpty(), loading = loading,\n  error = error, onRetry = ::refresh,\n  placeholder = { Skeleton() }, empty = { EmptyState() },\n) { Collection(items) }"
+    "waveform" -> "AudioWaveform(levels = sampledLevels, active = recording,\n  label = \"Recording\")"
+    "audio-icon" -> "AudioLevelIcon(level = audioLevel, active = recording,\n  label = \"Recording\")"
+    "audio-ring" -> "AudioActivityRing(level = audioLevel, active = recording) {\n  IconButton(onClick = ::toggleRecording) { MicIcon() }\n}"
     "01" -> "ExpandableCard(\n  expanded = expanded,\n  onExpandedChange = { expanded = it },\n  title = \"Details\",\n) { Text(\"More to discover\") }"
     "02" -> "AnimatedStatusText(text = status)"
     "03" -> "AnimatedCountBadge(count = unread)"

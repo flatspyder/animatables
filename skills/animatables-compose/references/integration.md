@@ -41,6 +41,11 @@ All functions are in `com.singleoriginapps.animatables`. Check source for option
 
 | Need | API | State belongs to |
 | --- | --- | --- |
+| Async action with working/success/retry feedback | `AsyncActionButton(state, onClick, label)` | Caller; `AsyncActionState`, work, errors, enabled/cancellation policy |
+| Initial loading, retained refresh and error recovery | `RefreshableContent(hasContent, loading, placeholder, empty) { ... }` | Caller; retained data, error and retry operation |
+| Large audio waveform | `AudioWaveform(levels, active)` | Caller; immutable normalized samples, capture and stop/pause |
+| Compact audio activity | `AudioLevelIcon(level, active)` | Caller; normalized level, actual state and localized label |
+| Activity around a recording button | `AudioActivityRing(level, active) { ... }` | Caller; button, recording semantics and interaction |
 | App preference to disable optional motion | `AnimatablesMotion(enabled) { ... }` | App settings/state holder |
 | Small in-place content swap with size reflow | `MotionContent(targetState) { state -> ... }` | Caller; render the supplied lambda value |
 | Related detail revealed from a titled card | `ExpandableCard(expanded, onExpandedChange, title) { ... }` | Caller; keep expansion saveable if user-owned |
@@ -59,6 +64,72 @@ All functions are in `com.singleoriginapps.animatables`. Check source for option
 | Compact activity transcript | `ReasoningStream(entries, maxVisibleEntries = 2)` | Caller; actual entries and expanded/pause controls |
 
 For navigation, anchored menus, tooltips, switches, checkboxes, tabs, snackbars, and modal sheets, begin with the native Material/Navigation components. Neither `MotionContent` nor `ExpandableCard` implements navigation lifecycle or predictive back.
+
+## Actions, refresh and audio
+
+```kotlin
+AsyncActionButton(
+    state = saveState,
+    onClick = ::saveOrCancel,
+    modifier = Modifier.width(240.dp),
+    label = "Save changes",
+    workingLabel = "Saving · cancel",
+    successLabel = "Changes saved",
+    errorLabel = "Retry save",
+    progress = { saveProgress }, // Omit for indeterminate work.
+)
+
+RefreshableContent(
+    hasContent = collection != null,
+    loading = refreshing,
+    error = refreshError,
+    onRetry = ::refresh,
+    placeholder = { CollectionSkeleton() },
+    empty = { Text("No saved items") },
+) {
+    CollectionContent(collection!!)
+}
+
+AudioWaveform(levels = sampledLevels, active = recording, label = "Recording")
+AudioLevelIcon(level = audioLevel, active = recording, label = "Recording")
+AudioActivityRing(level = audioLevel, active = recording) {
+    FilledIconButton(onClick = ::toggleRecording) {
+        Icon(micPainter, contentDescription = if (recording) "Stop recording" else "Start recording")
+    }
+}
+```
+
+These are host integration examples: the state holders, callbacks, painter and collection/skeleton
+composables come from the app. Import all new APIs and `AsyncActionState` from
+`com.singleoriginapps.animatables`; `FilledIconButton`, `Icon` and `Text` are Material 3.
+
+`AsyncActionButton` keeps a single native button with a fixed leading 20 dp indicator slot and an
+equal trailing slot. Icons crossfade in place; labels stay centered on the whole button and enter
+with an 8 dp vertical rise plus fade. Text length never moves the icon.
+Set width with a modifier to fit the longest localized label (the catalog uses 240 dp); without an
+explicit width it wraps current content. It does not measure hidden copies of every label. Long
+labels wrap. `enabled` remains caller-owned: the motion never disables
+input, and the caller can disable duplicate submission or turn a working click into cancellation.
+Set `AsyncActionState.Success` only when the operation succeeds; normalized progress at 1 is still
+Working. Invalid progress is clamped (NaN becomes zero). Success and error do not auto-reset. Put a
+useful failure explanation outside the retry button. Localize all four labels.
+
+Keep previous data while refreshing. As long as `hasContent` stays true, refresh/error changes
+retain the content subtree and do not reset a text field, scroll state or focus. Without content,
+the existing 150 ms placeholder delay and 350 ms minimum hold apply; after loading, an error with
+optional retry or the empty slot appears. During retry, loading hides the previous error. Clear
+the caller's error after success. Refresh indicators settle to static partial tracks with motion
+disabled. There is no data cache, request, automatic retry or navigation inside the container.
+
+Audio levels are normalized 0..1; NaN is zero, infinities and other out-of-range values are clamped.
+`AudioWaveform` linearly resamples ordered input to `barCount` (default 32, allowed 3..96). Empty
+input is silence. It defaults to 240 × 72 dp; `AudioLevelIcon` defaults to 24 dp. Inactive waveform
+and icon states are baselines. With reduced motion the active waveform/profile and ring stay fixed
+even if the host continues providing samples. State labels remain accessible without per-sample
+live announcements. These visuals contain no audio capture, microphone permission or sample clock.
+For a decorative icon in an already labelled control, pass `label = null`. `AudioActivityRing`
+adds a constant 12 dp on each side of the supplied circular button and handles no input/semantics.
+Retain a native button with a localized action/state label and a stop/pause control in the host.
 
 ## Minimal usage
 

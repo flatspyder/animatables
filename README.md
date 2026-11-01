@@ -6,6 +6,11 @@ Theme-aware Compose Multiplatform components for readable state changes and Mate
 
 | Component | Purpose |
 | --- | --- |
+| `AsyncActionButton` | Native action control with a fixed leading icon slot and working, success and retry feedback |
+| `RefreshableContent` | Initial loading, empty/error recovery and refresh that retains existing content |
+| `AudioWaveform` | Large waveform driven by supplied amplitudes or frequency bands |
+| `AudioLevelIcon` | Compact five-bar audio activity indicator |
+| `AudioActivityRing` | Level-reactive halo around an existing recording button |
 | `MotionContent` | In-place content replacement with a fade, vertical entrance and size reflow |
 | `ExpandableCard` | State-hoisted disclosure with an accessible, interactive header |
 | `AnimatedStatusText` | Short status-label changes |
@@ -24,6 +29,18 @@ Theme-aware Compose Multiplatform components for readable state changes and Mate
 | `AnimatablesMotion` | An additional application-level motion preference |
 
 Components inherit the host Material theme. Keep state, events, data arrival and business logic in the caller. Prefer native Material controls for the interactions they already implement.
+
+Async actions keep one native Material button mounted with a fixed leading icon slot and centred labels. Size the
+button with a modifier to fit its localized labels. The caller decides
+whether working can be clicked again or cancelled; success never resets on a timer. For refresh,
+retain the previous data and pass `hasContent = true` while loading or recovering from an error.
+`RefreshableContent` keeps that content's local state and focus intact.
+
+Audio components consume normalized levels from the host; they do not capture audio or request
+microphone permissions. Use `AudioWaveform` for a larger presentation, `AudioLevelIcon` in compact
+spaces, or wrap an existing circular recording control with `AudioActivityRing`. The ring reserves
+space without intercepting clicks or replacing the button's semantics. With reduced motion, active
+audio has a fixed readable profile and inactive audio has a quiet baseline.
 
 ```kotlin
 var expanded by rememberSaveable { mutableStateOf(false) }
