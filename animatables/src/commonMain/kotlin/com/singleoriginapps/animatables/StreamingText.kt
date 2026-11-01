@@ -31,7 +31,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Displays real caller-supplied text with ordered word fades, without travel or soft focus.
+ * Displays real caller-supplied text with overlapping ordered word fades, without travel or soft focus.
  *
  * Appended words join one paced queue; settled words remain unchanged. Extending a partially
  * received word keeps its opacity and identity. A non-prefix replacement or a new [streamKey]
@@ -117,7 +117,7 @@ public fun StreamingText(
 private object StreamingMotionTokens {
     const val WordSpacingMillis = 60L
     val WordFadeSpec =
-        tween<Float>(durationMillis = 350, easing = CubicBezierEasing(.22f, 1f, .36f, 1f))
+        tween<Float>(durationMillis = 480, easing = CubicBezierEasing(.2f, 0f, .2f, 1f))
 }
 
 private val WordPattern = Regex("\\S+")

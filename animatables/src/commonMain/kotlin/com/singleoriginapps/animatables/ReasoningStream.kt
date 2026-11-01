@@ -3,6 +3,7 @@ package com.singleoriginapps.animatables
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.keyframes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -30,15 +32,18 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Scrolls a compact window of actual user-visible activity entries upward as new entries arrive.
  *
  * One continuous measured column moves by the actual height of displaced entries, so wrapped
- * entries keep their position relative to surviving entries. [maxVisibleEntries] limits entries,
- * not visual lines. Each entry wraps naturally. A fixed 28dp edge fade appears only while content
- * is hidden beyond that edge; the newest entry has no bottom fade at rest, and a full transcript
- * has no edge mask. The semantic value is the entire transcript,
+ * entries keep their position relative to surviving entries. [maxVisibleEntries] limits the resting window to that many entries,
+ * not visual lines; each entry wraps naturally. Top and bottom edge fades soften text only while
+ * it crosses the clipped viewport. Equal-depth top/bottom fades remain visible through the scroll
+ * and clear before the column settles, leaving exactly the latest entries fully opaque without a history peek.
+ * The semantic value is the entire transcript,
  * without announcing each update automatically. Pass truthful user-visible activity, not invented
  * internal reasoning. Intended for compact activity logs; paginate very large logs in the host.
  *
@@ -62,13 +67,24 @@ public fun ReasoningStream(
     val generation = remember(entries) { tracker.accept(entries) }
     var geometry by remember { mutableStateOf<ActivityGeometry?>(null) }
     var positionedFor by remember { mutableStateOf<ActivityPosition?>(null) }
+    var animatingFor by remember { mutableStateOf<ActivityGeometry?>(null) }
+    val edgeVisibility = remember { Animatable(0f) }
     LaunchedEffect(geometry, enabled) {
         val current = geometry ?: return@LaunchedEffect
-        if (!enabled || positionedFor != current.identity) {
+        animatingFor = null
+        if (!enabled || positionedFor != current.identity || scroll.value == current.targetOffset.toFloat()) {
             scroll.snapTo(current.targetOffset.toFloat())
+            edgeVisibility.snapTo(0f)
             positionedFor = current.identity
         } else {
-            scroll.animateTo(current.targetOffset.toFloat(), spec)
+            animatingFor = current
+            coroutineScope {
+                launch { scroll.animateTo(current.targetOffset.toFloat(), spec) }
+                // A shared 500ms envelope keeps both edges visible during the same scroll,
+                // then restores full ink before the column stops. Retarget from current alpha.
+                launch { edgeVisibility.animateTo(0f, ReasoningPolishTokens.EdgeFadeSpec) }
+            }
+            animatingFor = null
         }
     }
     Layout(
@@ -82,28 +98,29 @@ public fun ReasoningStream(
             .clipToBounds()
             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
             .drawWithContent {
-                drawContent()
                 val current = geometry
-                if (current != null && current.hasOverflow && size.height > 0f) {
-                    val fade = ReasoningPolishTokens.EdgeFade.toPx().coerceAtMost(size.height / 2f)
-                    val offset =
-                        if (!enabled || positionedFor != current.identity) current.targetOffset.toFloat()
-                        else scroll.value.coerceIn(0f, current.targetOffset.toFloat())
-                    val hasContentAbove = offset > .5f
-                    val hasContentBelow = current.targetOffset - offset > .5f
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            0f to if (hasContentAbove) Color.Transparent else Color.Black,
-                            (fade / size.height) to Color.Black,
-                            (1f - fade / size.height) to Color.Black,
-                            1f to if (hasContentBelow) Color.Transparent else Color.Black,
-                        ),
-                        blendMode = BlendMode.DstIn,
-                    )
+                val viewportHeight = current?.viewportHeight?.toFloat() ?: size.height
+                clipRect(bottom = viewportHeight) {
+                    this@drawWithContent.drawContent()
+                    if (enabled && current != null && animatingFor == current && viewportHeight > 0f) {
+                        val fade = minOf(ReasoningPolishTokens.EdgeFade.toPx(), viewportHeight / 2f)
+                        val edgeAlpha = 1f - edgeVisibility.value.coerceIn(0f, 1f)
+                        if (fade > 0f) {
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    0f to Color.Black.copy(alpha = edgeAlpha),
+                                    (fade / viewportHeight) to Color.Black,
+                                    (1f - fade / viewportHeight) to Color.Black,
+                                    1f to Color.Black.copy(alpha = edgeAlpha),
+                                    endY = viewportHeight,
+                                ),
+                                blendMode = BlendMode.DstIn,
+                            )
+                        }
+                    }
                 }
             },
     ) { measurables, constraints ->
-        val padding = 12.dp.roundToPx()
         val spacing = 8.dp.roundToPx()
         val childConstraints = Constraints(maxWidth = constraints.maxWidth)
         val children = measurables.map { it.measure(childConstraints) }
@@ -113,16 +130,16 @@ public fun ReasoningStream(
         val visibleContent = children.takeLast(visibleCount).sumOf { it.height } +
                 spacing * (visibleCount - 1).coerceAtLeast(0)
         val width = constraints.constrainWidth(children.maxOfOrNull { it.width } ?: 0)
-        val height = constraints.constrainHeight(visibleContent + padding * 2)
-        val totalHeight = totalContent + padding * 2
-        val target = (totalHeight - height).coerceAtLeast(0)
+        val height = constraints.constrainHeight(visibleContent)
+        val viewportHeight = minOf(height, visibleContent)
+        val target = (totalContent - viewportHeight).coerceAtLeast(0)
         val identity = ActivityPosition(generation, maxVisibleEntries, width)
-        val current = ActivityGeometry(identity, target, totalHeight, target > 0)
+        val current = ActivityGeometry(identity, target, viewportHeight)
         if (geometry != current) geometry = current
         layout(width, height) {
             val offset = if (!enabled || positionedFor != identity) target.toFloat()
             else scroll.value.coerceIn(0f, target.toFloat())
-            var top = padding - offset.roundToInt()
+            var top = -offset.roundToInt()
             children.forEach { child ->
                 // Relative placement preserves native RTL text alignment. Vertical movement is
                 // shared by every entry rather than crossfading duplicated windows.
@@ -137,8 +154,7 @@ private data class ActivityPosition(val generation: Int, val maximum: Int, val w
 private data class ActivityGeometry(
     val identity: ActivityPosition,
     val targetOffset: Int,
-    val totalHeight: Int,
-    val hasOverflow: Boolean,
+    val viewportHeight: Int,
 )
 
 private class ActivityIdentity {
@@ -154,8 +170,15 @@ private class ActivityIdentity {
 /** Reference-inspired motion/viewport tokens; real data arrival remains controlled by the host. */
 private object ReasoningPolishTokens {
     val EdgeFade = 28.dp
+    const val ScrollMillis = 500
+    val EdgeFadeSpec = keyframes<Float> {
+        durationMillis = ScrollMillis
+        1f at 24
+        1f at 160
+        0f at 280
+    }
     val ScrollSpec = tween<Float>(
-        durationMillis = 500,
+        durationMillis = ScrollMillis,
         easing = CubicBezierEasing(.22f, 1f, .36f, 1f),
     )
 }

@@ -2,6 +2,8 @@ package com.singleoriginapps.animatables
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +20,7 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 /**
- * A large, centered bar waveform driven by caller-supplied normalized [levels].
+ * A live audio display of anchored, rounded amplitude bars driven by caller-supplied normalized [levels].
  *
  * Supply an immutable snapshot of audio amplitudes or frequency bands, ordered left to right.
  * Samples are linearly resampled to [barCount] (3..96); empty input is silence, NaN is zero, and
@@ -27,7 +29,12 @@ import kotlin.math.sin
  * [active] false shows a quiet baseline. [label] should describe the actual state, localized by
  * the caller; amplitude changes do not generate accessibility announcements.
  *
- * Fast theme effects smooth incoming data without a bouncy spatial spring. Animation values are
+ * Use short-window RMS/peak envelopes or frequency-band energy, with a stable gain/noise floor;
+ * avoid independently randomized bars or normalizing every frame to its loudest value. For live
+ * energy, 20–40ms snapshots retain speech attacks and pauses. The 24-bar default limits visual
+ * noise: bars change height without lateral travel, flashing color or spring overshoot. Fast
+ * theme effects catch rising attacks; default effects give falling energy a gentler release.
+ * Animation values are
  * read only in draw. Disabled motion shows a fixed active profile or inactive baseline, never a
  * continuing waveform. Set [modifier] to size the presentation; the default is 240 by 72 dp.
  */
@@ -38,7 +45,7 @@ public fun AudioWaveform(
     modifier: Modifier = Modifier,
     label: String = if (active) "Audio active" else "Audio inactive",
     color: Color = MaterialTheme.colorScheme.primary,
-    barCount: Int = 32,
+    barCount: Int = 24,
 ) {
     require(barCount in 3..96) { "barCount must be between 3 and 96" }
     val enabled = rememberMotionEnabled()
@@ -49,11 +56,21 @@ public fun AudioWaveform(
             !enabled -> .2f + .5f * sin(PI * index / (barCount - 1)).toFloat()
             else -> samples[index]
         }
-        rememberAudioLevel(target, enabled)
+        val amplitude = updateTransition(target, label = "Waveform band")
+        amplitude.animateFloat(
+            transitionSpec = {
+                when {
+                    !enabled -> snap()
+                    targetState > initialState -> MaterialTheme.motionScheme.fastEffectsSpec()
+                    else -> MaterialTheme.motionScheme.defaultEffectsSpec()
+                }
+            },
+            label = "Waveform amplitude",
+        ) { it }
     }
     Canvas(modifier.size(240.dp, 72.dp).clearAndSetSemantics { contentDescription = label }) {
         val slot = size.width / barCount
-        val stroke = minOf(4.dp.toPx(), slot * .6f, size.height)
+        val stroke = minOf(8.dp.toPx(), slot * .6f, size.height)
         bars.forEachIndexed { index, bar ->
             val height = stroke + (size.height - stroke).coerceAtLeast(0f) * normalizedFraction(bar.value)
             val x = slot * (index + .5f)

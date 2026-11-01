@@ -107,7 +107,7 @@ class TextMotionTest {
                 }
             }
         }
-        compose.mainClock.advanceTimeBy(96)
+        compose.mainClock.advanceTimeBy(192)
         val moving = compose.onNodeWithTag("rtlStream").captureToImage()
         assertTrue(
             "RTL word layers must be inside the paragraph while moving",

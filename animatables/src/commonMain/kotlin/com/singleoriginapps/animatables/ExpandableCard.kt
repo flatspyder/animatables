@@ -7,7 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Canvas
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,8 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -87,22 +85,12 @@ public fun ExpandableCard(
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleMedium
                 )
-                Canvas(Modifier.size(24.dp).graphicsLayer { rotationZ = rotation }) {
-                    drawLine(
-                        chevronColor,
-                        Offset(size.width * .25f, size.height * .4f),
-                        Offset(size.width * .5f, size.height * .65f),
-                        strokeWidth = 2.dp.toPx(),
-                        cap = StrokeCap.Round,
-                    )
-                    drawLine(
-                        chevronColor,
-                        Offset(size.width * .5f, size.height * .65f),
-                        Offset(size.width * .75f, size.height * .4f),
-                        strokeWidth = 2.dp.toPx(),
-                        cap = StrokeCap.Round,
-                    )
-                }
+                Icon(
+                    MaterialSymbols.ExpandMore,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp).graphicsLayer { rotationZ = rotation },
+                    tint = chevronColor,
+                )
             }
             AnimatedVisibility(
                 visible = expanded,

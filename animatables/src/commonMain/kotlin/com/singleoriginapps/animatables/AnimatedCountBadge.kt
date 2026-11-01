@@ -6,19 +6,22 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Badge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 /**
- * Material badge with a restrained count crossfade, including a visible zero state.
+ * Material badge with a short directional count roll and smoothly resizing capsule, including a visible zero state.
  *
  * Counts above [maxCount] display “maxCount+”; accessibility still receives the full count. Use
  * [countDescription] to provide a localized noun, for example “142 unread messages”. The size
@@ -36,21 +39,25 @@ public fun AnimatedCountBadge(
 ) {
     require(count >= 0) { "count must be nonnegative" }
     require(maxCount > 0) { "maxCount must be positive" }
-    val label = if (count > maxCount) "$maxCount+" else count.toString()
     val semantics = modifier.clearAndSetSemantics { contentDescription = countDescription(count) }
     val enabled = rememberMotionEnabled()
     val effects =
         if (enabled) MaterialTheme.motionScheme.fastEffectsSpec<Float>() else snap<Float>()
     val size = if (enabled) MotionScheme.standard().fastSpatialSpec<IntSize>() else snap<IntSize>()
+    val movement = if (enabled) MotionScheme.standard().fastSpatialSpec<IntOffset>() else snap()
     Badge(semantics) {
         AnimatedContent(
-            targetState = label,
+            targetState = count,
+            contentKey = { if (it > maxCount) "$maxCount+" else it.toString() },
+            contentAlignment = Alignment.Center,
             transitionSpec = {
-                (fadeIn(effects) togetherWith fadeOut(effects)).using(
-                    SizeTransform(clip = false) { _, _ -> size },
+                val direction = if (targetState > initialState) 1 else -1
+                ((fadeIn(effects) + slideInVertically(movement) { if (enabled) it * direction else 0 }) togetherWith
+                    (fadeOut(effects) + slideOutVertically(movement) { if (enabled) -it * direction else 0 })).using(
+                    SizeTransform(clip = true) { _, _ -> size },
                 )
             },
             label = "Badge count",
-        ) { value -> Box { Text(value) } }
+        ) { value -> Text(if (value > maxCount) "$maxCount+" else value.toString()) }
     }
 }

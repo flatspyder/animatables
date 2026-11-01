@@ -98,6 +98,7 @@ class TextStateEffectsTest {
                 EvidenceSurface {
                     ShimmerText(
                         "Finding your rhythm",
+                        continuous = false,
                         active = active.value,
                         replayKey = replay.value,
                         style = MaterialTheme.typography.headlineMedium,

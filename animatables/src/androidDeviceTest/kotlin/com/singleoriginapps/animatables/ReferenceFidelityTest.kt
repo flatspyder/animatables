@@ -222,6 +222,7 @@ class ReferenceFidelityTest {
                 ) {
                     ShimmerText(
                         "Finding your rhythm",
+                        continuous = false,
                         active = active.value,
                         style = TextStyle(color = Color.Black, fontSize = 24.sp)
                     )

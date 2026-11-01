@@ -26,6 +26,7 @@ public fun ThinkingStates(
             text = label,
             active = active && label == text,
             replayKey = replayKey,
+            continuous = false,
             style = LocalTextStyle.current.copy(textAlign = TextAlign.Center),
         )
     }

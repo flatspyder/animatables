@@ -52,13 +52,16 @@ public fun RefreshableContent(
         loadingDescription = loadingLabel,
         placeholder = placeholder,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             // Place notices before content so a full-height scrolling body cannot hide recovery.
             if (hasContent) {
-                MotionContent(targetState = if (loading) RefreshNotice.Loading else error?.let(RefreshNotice::Error)) { notice ->
+                MotionContent(
+                    targetState = if (loading) RefreshNotice.Loading else error?.let(RefreshNotice::Error),
+                    modifier = Modifier.fillMaxWidth(),
+                ) { notice ->
                     when (notice) {
                         RefreshNotice.Loading -> Column(
-                            Modifier.semantics { progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate },
+                            Modifier.fillMaxWidth().semantics { progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate },
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Text(refreshingLabel, style = MaterialTheme.typography.bodyMedium)
@@ -88,7 +91,7 @@ private sealed interface RefreshNotice {
 
 @Composable
 private fun RecoveryNotice(message: String, retryLabel: String, onRetry: (() -> Unit)?) {
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Text(message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
         if (onRetry != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {

@@ -1,6 +1,7 @@
 package com.singleoriginapps.animatables
 
 import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
@@ -18,7 +19,7 @@ import androidx.compose.ui.MotionDurationScale
 internal object MotionEffectTokens {
     const val ShimmerSweeps: Int = 2
     private const val ShimmerSweepMillis: Int = 2000
-    val ShimmerSweepSpec: FiniteAnimationSpec<Float> = tween(
+    val ShimmerSweepSpec: DurationBasedAnimationSpec<Float> = tween(
         durationMillis = ShimmerSweepMillis,
         easing = LinearEasing,
     )

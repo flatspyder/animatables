@@ -1,41 +1,34 @@
 package com.singleoriginapps.animatables
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathMeasure
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.vector.PathParser
 
-/** Cached geometry shared by the completion family. Construct in drawWithCache. */
-internal class CompletionMark(size: Size) {
-    val check = Path().apply {
-        moveTo(size.width * StartX, size.height * StartY)
-        lineTo(size.width * CornerX, size.height * CornerY)
-        lineTo(size.width * EndX, size.height * EndY)
-    }
-    val stroke = Stroke(size.minDimension * StrokeFraction, cap = StrokeCap.Round)
-    private val measure = PathMeasure().apply { setPath(check, false) }
-    private val visible = Path()
+/** Material Symbols check, progressively revealed along its two arms. Cached in drawWithCache. */
+internal class CompletionMark(private val size: Size) {
+    private val check = PathParser().parsePathString(MaterialSymbols.CheckPath).toPath()
 
     fun DrawScope.draw(fill: Color, content: Color, progress: Float = 1f) {
         drawCircle(fill)
-        val path = if (progress >= 1f) check else {
-            visible.rewind()
-            measure.getSegment(0f, measure.length * progress.coerceIn(0f, 1f), visible, true)
-            visible
+        withTransform({
+            translate(size.width * .1f, size.height * .1f)
+            scale(size.width * .8f / 960f, size.height * .8f / 960f, pivot = Offset.Zero)
+            translate(0f, 960f)
+        }) {
+            // The reveal traverses the arms from left to right, retaining Google's exact
+            // rounded outline at rest instead of approximating it with hand-drawn strokes.
+            val fraction = progress.coerceIn(0f, 1f)
+            clipRect(0f, -960f, 160f + 640f * fraction, 0f) {
+                if (fraction > 0f) drawPath(check, content)
+            }
         }
-        drawPath(path, content, style = stroke)
     }
 
     companion object {
-        const val StartX = .27f
-        const val StartY = .51f
-        const val CornerX = .44f
-        const val CornerY = .68f
-        const val EndX = .75f
-        const val EndY = .34f
         const val StrokeFraction = .075f
     }
 }

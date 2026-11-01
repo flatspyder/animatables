@@ -3,6 +3,7 @@ package com.singleoriginapps.animatables
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -103,6 +104,31 @@ class StreamingPolishTest {
     }
 
     @Test
+    fun adjacentWordsKeepSettlingTogether() {
+        compose.mainClock.autoAdvance = false
+        var reference: TextLayoutResult? = null
+        compose.setContent {
+            MaterialTheme {
+                Surface(color = Color.White) {
+                    Column {
+                        StreamingText("ALPHA BRAVO", Modifier.width(240.dp).testTag("stream"), style = style)
+                        Text("ALPHA BRAVO", Modifier.width(240.dp), style = style,
+                            onTextLayout = { reference = it })
+                    }
+                }
+            }
+        }
+        compose.mainClock.advanceTimeBy(208)
+        val first = compose.onNodeWithTag("stream").captureToImage()
+        compose.mainClock.advanceTimeBy(96)
+        val second = compose.onNodeWithTag("stream").captureToImage()
+        val alpha = requireNotNull(reference).getPathForRange(0, 5).getBounds()
+        val bravo = requireNotNull(reference).getPathForRange(6, 11).getBounds()
+        assertTrue("The earlier word is still settling", ink(second, alpha) > ink(first, alpha) + 1f)
+        assertTrue("The following word settles at the same time", ink(second, bravo) > ink(first, bravo) + 1f)
+    }
+
+    @Test
     fun completingAPartialWordKeepsItsOpacityAndSettledPrefixSteady() {
         compose.mainClock.autoAdvance = false
         val value = mutableStateOf("ALPHA")
@@ -190,29 +216,83 @@ class StreamingPolishTest {
     }
 
     @Test
-    fun compactActivityHasVisibleGradientAndExpandedTranscriptIsSharp() {
-        val maximum = mutableStateOf(2)
-        val entries = List(3) { "████████████████" }
+    fun activityCountLimitStillHoldsInsideAnExplicitlyLargerContainer() {
+        compose.mainClock.autoAdvance = false
+        val all = List(5) { "Entry $it" }
+        val maximum = mutableStateOf(1)
+        val history = mutableStateOf(true)
+        compose.setContent {
+            MaterialTheme { Surface(color = Color.White) {
+                ReasoningStream(if (history.value) all else all.takeLast(maximum.value),
+                    Modifier.width(240.dp).height(160.dp).testTag("activity"),
+                    maxVisibleEntries = maximum.value, active = false, style = style)
+            } }
+        }
+        for (count in 1..3) {
+            compose.runOnIdle { maximum.value = count; history.value = true }
+            compose.mainClock.advanceTimeByFrame()
+            val actual = compose.onNodeWithTag("activity").captureToImage()
+            compose.runOnIdle { history.value = false }
+            compose.mainClock.advanceTimeByFrame()
+            val reference = compose.onNodeWithTag("activity").captureToImage()
+            assertEquals("Exactly $count entries render, even with excess container height", 0f,
+                pixelDifferenceFraction(actual, reference), .001f)
+        }
+    }
+
+    @Test
+    fun activityDoesNotFadeWhenTheWindowGrowsWithoutScrolling() {
+        compose.mainClock.autoAdvance = false
+        val entries = mutableStateOf(List(1) { "████████████████" })
+        val active = mutableStateOf(true)
+        compose.setContent {
+            MaterialTheme { Surface(color = Color.White) {
+                ReasoningStream(entries.value, Modifier.width(240.dp).testTag("activity"),
+                    active = active.value, style = style)
+            } }
+        }
+        compose.mainClock.advanceTimeBy(700)
+        compose.runOnIdle { entries.value += "████████████████" }
+        compose.mainClock.advanceTimeBy(80)
+        val growing = compose.onNodeWithTag("activity").captureToImage()
+        compose.runOnIdle { active.value = false }
+        compose.mainClock.advanceTimeByFrame()
+        val static = compose.onNodeWithTag("activity").captureToImage()
+        assertEquals("Edges stay opaque when no text crosses the viewport", 0f,
+            pixelDifferenceFraction(growing, static), .001f)
+    }
+
+    @Test
+    fun activityFadesOnlyDuringTravelAndRendersExactlyTheRestingWindow() {
+        compose.mainClock.autoAdvance = false
+        val entries = mutableStateOf(List(2) { "████████████████" })
+        val active = mutableStateOf(true)
         compose.setContent {
             MaterialTheme {
                 Surface(color = Color.White) {
-                    ReasoningStream(
-                        entries,
-                        Modifier.width(240.dp).testTag("activity"),
-                        maxVisibleEntries = maximum.value,
-                        active = false,
-                        style = style,
-                    )
+                    ReasoningStream(entries.value, Modifier.width(240.dp).testTag("activity"),
+                        active = active.value, style = style)
                 }
             }
         }
-        val compact = compose.onNodeWithTag("activity").captureToImage()
-        compose.runOnIdle { maximum.value = entries.size }
-        val expanded = compose.onNodeWithTag("activity").captureToImage()
-        assertTrue(
-            "Gradient must fade visible glyph rows, not only empty padding",
-            grayRows(compact) > grayRows(expanded) + 6
-        )
+        compose.mainClock.advanceTimeBy(700)
+        compose.runOnIdle { entries.value += "████████████████" }
+        compose.mainClock.advanceTimeBy(80)
+        val moving = compose.onNodeWithTag("activity").captureToImage()
+        compose.mainClock.advanceTimeBy(512)
+        val settled = compose.onNodeWithTag("activity").captureToImage()
+        // An exact pixel comparison includes the container edges: no third line, fading
+        // history fragment, extra resting inset or residual mask may remain anywhere.
+        compose.runOnIdle { entries.value = entries.value.takeLast(2); active.value = false }
+        compose.mainClock.advanceTimeByFrame()
+        val unmasked = compose.onNodeWithTag("activity").captureToImage()
+        val middle = moving.height / 2
+        assertTrue("Outgoing text has a visible top-edge gradient",
+            grayRows(moving, 0 until middle) > grayRows(unmasked, 0 until middle) + 3)
+        assertTrue("Incoming text has a visible bottom-edge gradient",
+            grayRows(moving, middle until moving.height) > grayRows(unmasked, middle until unmasked.height) + 3)
+        assertEquals("Only the two latest entries remain, fully opaque", 0f,
+            pixelDifferenceFraction(settled, unmasked), .001f)
     }
 }
 
@@ -239,10 +319,10 @@ private fun pixelDifferenceFraction(first: ImageBitmap, second: ImageBitmap): Fl
     return different.toFloat() / (first.width * first.height)
 }
 
-private fun grayRows(image: ImageBitmap): Int {
+private fun grayRows(image: ImageBitmap, rows: IntRange = 0 until image.height): Int {
     val pixels = image.toPixelMap()
     val x = image.width / 3
-    return (0 until image.height).count { pixels[x, it].red in .02f.. .98f }
+    return rows.count { pixels[x, it].red in .02f.. .98f }
 }
 
 private fun exportFidelityFrames(streamed: ImageBitmap, native: ImageBitmap) {

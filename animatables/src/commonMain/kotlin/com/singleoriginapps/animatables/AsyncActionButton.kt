@@ -8,7 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -24,8 +24,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -121,23 +119,12 @@ private fun ActionGlyph(state: AsyncActionState, progress: (() -> Float)?) {
             CircularProgressIndicator(progress = { progress?.invoke()?.let(::normalizedFraction) ?: .25f },
                 modifier = modifier, color = color, strokeWidth = 2.dp)
         }
-    } else {
-        Canvas(modifier) {
-            val width = 2.dp.toPx()
-            when (state) {
-                AsyncActionState.Success -> {
-                    drawLine(color, Offset(size.width * .18f, size.height * .5f),
-                        Offset(size.width * .42f, size.height * .73f), width, StrokeCap.Round)
-                    drawLine(color, Offset(size.width * .42f, size.height * .73f),
-                        Offset(size.width * .82f, size.height * .25f), width, StrokeCap.Round)
-                }
-                AsyncActionState.Error -> {
-                    drawLine(color, Offset(center.x, size.height * .2f),
-                        Offset(center.x, size.height * .57f), width, StrokeCap.Round)
-                    drawCircle(color, width / 2, Offset(center.x, size.height * .8f))
-                }
-                else -> Unit
-            }
-        }
+    } else if (state != AsyncActionState.Idle) {
+        Icon(
+            imageVector = if (state == AsyncActionState.Success) MaterialSymbols.Check else MaterialSymbols.Error,
+            contentDescription = null,
+            modifier = modifier,
+            tint = color,
+        )
     }
 }
