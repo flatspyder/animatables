@@ -12,6 +12,7 @@
     <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
     <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&amp;family=DM+Sans:wght@400;600&amp;display=swap"
           rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&amp;icon_names=arrow_back,arrow_downward,arrow_forward,arrow_upward,auto_awesome,check,close,code,dark_mode,grid_view,north_east,play_arrow,search&amp;display=block" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
     <script defer src="components-data.js"></script>
     <script defer src="preview-runtime.js"></script>
@@ -23,49 +24,39 @@
     <a aria-label="Animatables home" class="rail-mark" href="./"><img alt="" height="44"
                                                                       src="mark.svg" width="44"></a>
     <a aria-label="Component gallery" class="rail-link active" href="#gallery">
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-            <rect height="7" rx="2" width="7" x="3" y="3"/>
-            <rect height="7" rx="3.5" width="7" x="14" y="3"/>
-            <rect height="7" rx="3.5" width="7" x="3" y="14"/>
-            <rect height="7" rx="2" width="7" x="14" y="14"/>
-        </svg>
+        <span aria-hidden="true" class="material-symbols-rounded">grid_view</span>
         <span>Explore</span></a>
     <a aria-label="Use in Compose" class="rail-link" href="#use">
-        <svg aria-hidden="true" viewBox="0 0 24 24">
-            <path d="m8 6-6 6 6 6m8-12 6 6-6 6M14 3l-4 18"/>
-        </svg>
+        <span aria-hidden="true" class="material-symbols-rounded">code</span>
         <span>Get started</span></a>
     <a aria-label="GitHub repository" class="rail-bottom"
-       href="https://github.com/flatspyder/animatables">↗</a>
+       href="https://github.com/flatspyder/animatables"><span aria-hidden="true" class="material-symbols-rounded">north_east</span></a>
 </aside>
 <div class="site-body">
     <header class="site-header"><a class="wordmark" href="./">animatables<span class="wordmark-dot">.</span></a>
         <nav aria-label="Main navigation"><a class="current" href="#gallery">Components</a><a
                 href="#use">Get started</a><a class="github-link"
                                               href="https://github.com/flatspyder/animatables">GitHub
-            <span aria-hidden="true">↗</span></a></nav>
+            <span aria-hidden="true" class="material-symbols-rounded">north_east</span></a></nav>
         <button aria-label="Switch to dark theme" aria-pressed="false" class="icon-button theme-button"
                 id="theme">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M20.5 13.1A8.7 8.7 0 0 1 10.9 3.5a8.7 8.7 0 1 0 9.6 9.6Z"/>
-            </svg>
+            <span aria-hidden="true" class="material-symbols-rounded">dark_mode</span>
         </button>
     </header>
     <main>
         <section aria-labelledby="hero-title" class="hero">
             <div class="hero-copy"><p class="eyebrow"><span aria-hidden="true"
-                                                            class="tiny-flower">✳</span> COMPOSE,
+                                                            class="tiny-flower material-symbols-rounded">auto_awesome</span> COMPOSE,
                 WITH FEELING</p>
                 <h1 id="hero-title">Small details.<br><span>Big difference.</span></h1>
                 <p class="hero-description">Expressive components for the moments between states.<br
                         class="desktop-break"> Explore the motion. Find your next finishing touch.
-                </p><a class="hero-cta" href="#gallery">Explore components <span aria-hidden="true">↓</span></a><span
+                </p><a class="hero-cta" href="#gallery">Explore components <span aria-hidden="true" class="material-symbols-rounded">arrow_downward</span></a><span
                         class="hero-platform">Android-first · Compose Multiplatform</span></div>
             <div aria-hidden="true" class="hero-art"><span class="art-orbit"></span><span
-                    class="art-star">✳</span><span
+                    class="art-star material-symbols-rounded">auto_awesome</span><span
                     class="art-type">Aa<span>text, in motion</span></span><span class="art-number">1<span>2</span>3<span
-                    class="art-number-arrow">↑</span></span><span class="art-check"><svg
-                    viewBox="0 0 100 100"><path d="m28 50 15 16 29-32"/></svg></span><span
+                    class="art-number-arrow"><span aria-hidden="true" class="material-symbols-rounded">arrow_upward</span></span></span><span class="art-check"><span aria-hidden="true" class="material-symbols-rounded">check</span></span><span
                     class="art-caption">A change you can feel.</span></div>
         </section>
         <section aria-labelledby="gallery-title" class="gallery" id="gallery">
@@ -90,10 +81,7 @@
                         <span>{{COUNT_Audio}}</span></button>
                 </div>
                 <label class="search">
-                    <svg aria-hidden="true" viewBox="0 0 24 24">
-                        <circle cx="10.5" cy="10.5" r="6.5"/>
-                        <path d="m16 16 5 5"/>
-                    </svg>
+                    <span aria-hidden="true" class="material-symbols-rounded">search</span>
                     <input aria-label="Search components" id="search" placeholder="Find a component"
                            type="search"><kbd aria-hidden="true">/</kbd></label>
             </div>
@@ -105,7 +93,7 @@
                     motion</label><span>Play it right on the card ↙</span></div>
             </div>
             <div class="component-grid"><!-- COMPONENT_CARDS --></div>
-            <div class="empty" hidden id="empty"><span aria-hidden="true">⌕</span>
+            <div class="empty" hidden id="empty"><span aria-hidden="true" class="material-symbols-rounded">search</span>
                 <h3>No components found</h3>
                 <p>Try another name or explore the full collection.</p>
                 <button class="primary" id="clear-search">Show all components</button>
@@ -119,7 +107,7 @@
                 <p>Keep your familiar Compose patterns. You own the state and events; components
                     inherit your Material theme.</p><a class="text-link"
                                                        href="https://github.com/flatspyder/animatables#reuse-in-a-local-app">Set
-                    up from source <span aria-hidden="true">↗</span></a><span
+                    up from source <span aria-hidden="true" class="material-symbols-rounded">north_east</span></a><span
                         class="snapshot-label">Development snapshot · No public Maven release yet</span>
             </div>
             <div class="usage-code">
@@ -142,8 +130,7 @@
     </main>
     <footer><a class="wordmark" href="./">animatables<span class="wordmark-dot">.</span></a>
         <p>Small details, considered. By Single Origin Apps.</p><a
-                href="https://github.com/flatspyder/animatables">Made for Compose <span
-                aria-hidden="true">↗</span></a></footer>
+                href="https://github.com/flatspyder/animatables">Made for Compose <span aria-hidden="true" class="material-symbols-rounded">north_east</span></a></footer>
 </div>
 <div aria-hidden="true" class="inline-preview" id="inline-preview">
     <iframe data-src="playground.html" id="inline-renderer" tabindex="-1"
@@ -155,10 +142,10 @@
     <div class="dialog-top"><span class="eyebrow">THE PLAYGROUND <span
             id="selected-position"></span></span>
         <div class="dialog-navigation">
-            <button aria-label="Previous component" class="icon-button" id="previous">←</button>
-            <button aria-label="Next component" class="icon-button" id="next">→</button>
+            <button aria-label="Previous component" class="icon-button" id="previous"><span aria-hidden="true" class="material-symbols-rounded">arrow_back</span></button>
+            <button aria-label="Next component" class="icon-button" id="next"><span aria-hidden="true" class="material-symbols-rounded">arrow_forward</span></button>
             <span class="dialog-divider"></span>
-            <button aria-label="Close playground" class="icon-button" id="close-dialog">✕</button>
+            <button aria-label="Close playground" class="icon-button" id="close-dialog"><span aria-hidden="true" class="material-symbols-rounded">close</span></button>
         </div>
     </div>
     <div class="inspector">
@@ -218,7 +205,7 @@
                 </div>
             </details>
             <a class="source-link" href="https://github.com/flatspyder/animatables" id="source">View
-                Kotlin source <span aria-hidden="true">↗</span></a>
+                Kotlin source <span aria-hidden="true" class="material-symbols-rounded">north_east</span></a>
             <p class="sr-only" id="copy-status" role="status"></p></div>
     </div>
 </dialog>

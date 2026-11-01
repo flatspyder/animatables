@@ -73,7 +73,7 @@ try {
     await settled(page.locator('#playground'),`${id}-initial`);
     if (focus==='action-audio' && id==='RefreshableContent') {
       // Compose's accessibility div describes the hit bounds; its canvas owns pointer input.
-      await page.frameLocator('#playground').getByText('Pin Kyoto',{exact:true}).click({force:true});
+      await page.frameLocator('#playground').getByText('Lisbon',{exact:true}).click({force:true});
     }
     for (let action=1;action<=(focus==='action-audio' && id!=='RefreshableContent'?6:2);action++) {
       await page.locator('#advance').click();
@@ -84,21 +84,21 @@ try {
       }
       await settled(page.locator('#playground'),`${id}-action-${action}`);
       if (focus==='action-audio' && id==='RefreshableContent') {
-        await page.frameLocator('#playground').getByText('Kyoto pinned',{exact:true}).waitFor();
+        await page.frameLocator('#playground').getByText('Exploring Lisbon',{exact:true}).waitFor();
       }
     }
     if (focus==='action-audio' && id==='RefreshableContent') {
       const frame=page.frameLocator('#playground');
       await frame.getByText('Try offline',{exact:true}).click({force:true});
-      await frame.getByText('You’re offline. Your saved places are still available.',{exact:true}).waitFor();
-      await frame.getByText('Kyoto pinned',{exact:true}).waitFor();
-      await frame.getByText('Kyoto · Lisbon · Copenhagen',{exact:true}).waitFor();
+      await frame.getByText('You’re offline. Saved places are still available.',{exact:true}).waitFor();
+      await frame.getByText('Exploring Lisbon',{exact:true}).waitFor();
+      await frame.getByText('Copenhagen',{exact:true}).waitFor();
       await settled(page.locator('#playground'),'refresh-offline-retains-places');
       await frame.getByText('Retry',{exact:true}).click({force:true});
       await frame.getByText('Checking for updates…',{exact:true}).waitFor();
       await frame.getByText('Checking for updates…',{exact:true}).waitFor({state:'hidden'});
-      await frame.getByText('You’re offline. Your saved places are still available.',{exact:true}).waitFor({state:'hidden'});
-      await frame.getByText('Kyoto pinned',{exact:true}).waitFor();
+      await frame.getByText('You’re offline. Saved places are still available.',{exact:true}).waitFor({state:'hidden'});
+      await frame.getByText('Exploring Lisbon',{exact:true}).waitFor();
       await settled(page.locator('#playground'),'refresh-recovered-same-places');
     }
     await close();

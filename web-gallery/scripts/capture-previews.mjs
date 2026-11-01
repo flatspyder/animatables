@@ -1,7 +1,7 @@
 // Optional build-time snapshots. Requires Playwright in web-gallery/node_modules.
 // The gallery itself has no npm runtime dependency on Playwright.
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -28,7 +28,9 @@ try {
       path.join(root, `animatables/src/commonMain/kotlin/com/singleoriginapps/animatables/${id}.kt`),
       path.join(gallery, 'src/wasmJsMain/kotlin/Gallery.kt'),
       path.join(resources, 'playground.html'),
-      path.join(root, 'catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples/SpeechSamples.kt'),
+      ...(await readdir(path.join(root, 'catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples')))
+        .filter(file => file.endsWith('.kt')).sort()
+        .map(file => path.join(root, 'catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples', file)),
     ]) hash.update(await readFile(file));
     const digest = hash.digest('hex');
     if (builtSources[id] !== digest) throw new Error(`Built source differs for ${id}. Rebuild before capturing.`);

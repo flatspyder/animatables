@@ -1771,3 +1771,37 @@ details[open] summary>span {
   color:var(--ink);
   font-size:12px;
 }
+
+/* Google Fonts Material Symbols; Compose uses the matching generated Kotlin vectors. */
+.material-symbols-rounded {
+  font-family:"Material Symbols Rounded";
+  font-weight:400;
+  font-style:normal;
+  font-size:24px;
+  line-height:1;
+  display:inline-block;
+  white-space:nowrap;
+  word-wrap:normal;
+  direction:ltr;
+  font-feature-settings:"liga";
+  -webkit-font-smoothing:antialiased;
+  vertical-align:middle;
+}
+.rail-link .material-symbols-rounded {
+  padding:8px 17px;
+  font-weight:400;
+}
+.rail-link.active .material-symbols-rounded {
+  border-radius:18px;
+  background:var(--tint);
+  color:var(--accent);
+}
+.rail-link:hover .material-symbols-rounded { background:var(--line); border-radius:18px; }
+.art-check { display:grid; place-items:center; }
+.art-check .material-symbols-rounded { font-size:100px; }
+.art-star.material-symbols-rounded { font-size:46px; }
+.tiny-flower.material-symbols-rounded { font-size:16px; }
+.card-play .material-symbols-rounded, .card-details .material-symbols-rounded { font-size:18px; }
+
+.search .material-symbols-rounded { font-size:17px; color:var(--muted); }
+.theme-button .material-symbols-rounded { font-size:20px; }

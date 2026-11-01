@@ -91,7 +91,7 @@
     "id": "ShimmerText",
     "group": "Text",
     "action": "Replay shimmer",
-    "code": "ShimmerText(text = \"A moment of clarity\", replayKey = eventId)",
+    "code": "ShimmerText(text = \"A moment of clarity\", active = running)",
     "tone": "peach",
     "replay": true
   },

@@ -18,6 +18,7 @@ RESOURCES = GALLERY / "src/wasmJsMain/resources"
 OUTPUT = GALLERY / "build/generated/gallery"
 SOURCE = ROOT / "animatables/src/commonMain/kotlin/com/singleoriginapps/animatables"
 CATALOG = ROOT / "catalog/src/main/kotlin/com/singleoriginapps/animatables/catalog"
+SHARED = ROOT / "catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples"
 
 
 def check_coverage(samples):
@@ -39,6 +40,7 @@ def check_coverage(samples):
 
     screen = (CATALOG / "CatalogScreen.kt").read_text()
     android = "\n".join(path.read_text() for path in CATALOG.glob("*.kt"))
+    shared = "\n".join(path.read_text() for path in SHARED.glob("*.kt"))
     web = (GALLERY / "src/wasmJsMain/kotlin/Gallery.kt").read_text()
     dispatch = []
     for match in re.finditer(r'\bfun\s+(?:DemoContent|MotionEffectDemo)\([^)]*\)\s*\{', android):
@@ -55,9 +57,9 @@ def check_coverage(samples):
         ids = [demo_id for demo_id, api in entries if api == name]
         if not ids or not any(re.search(r'"' + re.escape(demo_id) + r'"\s*->', android_dispatch) for demo_id in ids):
             raise ValueError(f"Android catalog needs a registered, reachable demo for {name}")
-        if not re.search(r'\b' + re.escape(name) + r'\(', android):
+        if not re.search(r'\b' + re.escape(name) + r'\(', android + shared):
             raise ValueError(f"Android catalog does not call {name}")
-        if not re.search(r'"' + re.escape(name) + r'"\s*->', web) or not re.search(r'\b' + re.escape(name) + r'\(', web):
+        if not re.search(r'"' + re.escape(name) + r'"\s*->', web) or not re.search(r'\b' + re.escape(name) + r'\(', web + shared):
             raise ValueError(f"Web viewer needs a dispatch case calling {name}")
     for viewer, source in (("Android", android), ("Web", web)):
         if not re.search(r'\bAnimatablesMotion\(', source):
@@ -66,7 +68,7 @@ def check_coverage(samples):
 
 def preview_hash(name):
     files = [SOURCE / f"{name}.kt", GALLERY / "src/wasmJsMain/kotlin/Gallery.kt", RESOURCES / "playground.html",
-             ROOT / "catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples/SpeechSamples.kt"]
+             *sorted(SHARED.glob("*.kt"))]
     return hashlib.sha256(b''.join(file.read_bytes() for file in files)).hexdigest()
 
 
@@ -122,7 +124,7 @@ def generate(output_dir=OUTPUT):
             preview = f'<span class="preview-placeholder">{esc(title)} preview</span>'
         cards.append(f'''<article class="component tone-{esc(sample['tone'])}" data-component="{esc(name)}">
   <div class="card-visual">{preview}<span class="preview-label" aria-hidden="true">COMPOSE PREVIEW</span></div>
-  <div class="card-info"><span class="card-meta"><span>{esc(sample['group'])}</span><span class="component-index">{i+1:02d}</span></span><h3>{esc(title)}</h3><p class="component-description">{esc(docs[0])}</p><span class="component-api">{esc(name)}<span aria-hidden="true">()</span></span><div class="card-actions"><button class="card-play" aria-controls="inline-renderer" data-play="{esc(name)}" aria-label="Play {esc(title)} animation">▶ Play</button><button class="card-details" data-details="{esc(name)}" aria-haspopup="dialog" aria-label="API and usage for {esc(title)}">API &amp; usage ↗</button></div></div>
+  <div class="card-info"><span class="card-meta"><span>{esc(sample['group'])}</span><span class="component-index">{i+1:02d}</span></span><h3>{esc(title)}</h3><p class="component-description">{esc(docs[0])}</p><span class="component-api">{esc(name)}<span aria-hidden="true">()</span></span><div class="card-actions"><button class="card-play" aria-controls="inline-renderer" data-play="{esc(name)}" aria-label="Play {esc(title)} animation"><span aria-hidden="true" class="material-symbols-rounded">play_arrow</span> Play</button><button class="card-details" data-details="{esc(name)}" aria-haspopup="dialog" aria-label="API and usage for {esc(title)}">API &amp; usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span></button></div></div>
 </article>''')
     template = (GALLERY / "index.template.html").read_text()
     output = template.replace("<!-- COMPONENT_CARDS -->", "\n".join(cards)).replace("{{COMPONENT_COUNT}}", str(len(components)))
