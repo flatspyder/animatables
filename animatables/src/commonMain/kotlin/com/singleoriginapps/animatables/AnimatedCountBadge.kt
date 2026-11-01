@@ -5,9 +5,9 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.material3.Badge
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MotionScheme
@@ -53,7 +53,7 @@ public fun AnimatedCountBadge(
             transitionSpec = {
                 val direction = if (targetState > initialState) 1 else -1
                 ((fadeIn(effects) + slideInVertically(movement) { if (enabled) it * direction else 0 }) togetherWith
-                    (fadeOut(effects) + slideOutVertically(movement) { if (enabled) -it * direction else 0 })).using(
+                        (fadeOut(effects) + slideOutVertically(movement) { if (enabled) -it * direction else 0 })).using(
                     SizeTransform(clip = true) { _, _ -> size },
                 )
             },

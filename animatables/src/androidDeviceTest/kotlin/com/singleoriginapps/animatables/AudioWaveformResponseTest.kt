@@ -19,7 +19,8 @@ import org.junit.Rule
 import org.junit.Test
 
 class AudioWaveformResponseTest {
-    @get:Rule val compose = createComposeRule()
+    @get:Rule
+    val compose = createComposeRule()
 
     @Test
     fun shortAudioAttacksAreVisibleAndSilenceReturnsToACenteredBaseline() {
@@ -27,8 +28,10 @@ class AudioWaveformResponseTest {
         val levels = mutableStateOf(listOf(0f))
         compose.setContent {
             MaterialTheme {
-                AudioWaveform(levels.value, true, Modifier.size(240.dp, 72.dp)
-                    .background(Color.White).testTag("wave"), color = Color.Black)
+                AudioWaveform(
+                    levels.value, true, Modifier.size(240.dp, 72.dp)
+                        .background(Color.White).testTag("wave"), color = Color.Black
+                )
             }
         }
         compose.mainClock.advanceTimeBy(32)
@@ -39,14 +42,27 @@ class AudioWaveformResponseTest {
         val attack = verticalInkBounds(capture())
         compose.mainClock.advanceTimeBy(700)
         val peak = verticalInkBounds(capture())
-        assertTrue("A brief syllable must be clearly visible before 100ms", attack.last - attack.first > (peak.last - peak.first) / 2)
-        assertTrue("Bars expand around a stable centre", kotlin.math.abs(baseline.first + baseline.last - attack.first - attack.last) <= 2)
+        assertTrue(
+            "A brief syllable must be clearly visible before 100ms",
+            attack.last - attack.first > (peak.last - peak.first) / 2
+        )
+        assertTrue(
+            "Bars expand around a stable centre",
+            kotlin.math.abs(baseline.first + baseline.last - attack.first - attack.last) <= 2
+        )
         compose.runOnIdle { levels.value = listOf(0f) }
         compose.mainClock.advanceTimeBy(80)
         val release = verticalInkBounds(capture())
-        assertTrue("Release remains continuous rather than blinking off", release.last - release.first > baseline.last - baseline.first)
+        assertTrue(
+            "Release remains continuous rather than blinking off",
+            release.last - release.first > baseline.last - baseline.first
+        )
         compose.mainClock.advanceTimeBy(1000)
-        assertEquals("Silence has a stable resting baseline", baseline, verticalInkBounds(capture()))
+        assertEquals(
+            "Silence has a stable resting baseline",
+            baseline,
+            verticalInkBounds(capture())
+        )
     }
 }
 

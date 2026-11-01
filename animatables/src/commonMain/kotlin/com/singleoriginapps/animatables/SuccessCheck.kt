@@ -6,22 +6,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.graphics.LayerOutsets
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.LayerOutsets
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -139,7 +139,11 @@ internal fun SuccessFeedback(
             if (!complete) pendingSemantics()
         },
     ) {
-        pending({ if (!enabled) { if (complete) 1f else 0f } else appearance.value.coerceIn(0f, 1f) }, showPending)
+        pending({
+            if (!enabled) {
+                if (complete) 1f else 0f
+            } else appearance.value.coerceIn(0f, 1f)
+        }, showPending)
         Box(
             Modifier.matchParentSize().graphicsLayer {
                 val alphaProgress = if (!enabled) {
@@ -166,8 +170,9 @@ internal fun SuccessFeedback(
         ) {
             if (successIcon != null) {
                 Box(Modifier.fillMaxSize(.5f).align(Alignment.Center).graphicsLayer {
-                    alpha = if (!enabled) { if (complete) 1f else 0f }
-                    else pathProgress.value.coerceIn(0f, 1f)
+                    alpha = if (!enabled) {
+                        if (complete) 1f else 0f
+                    } else pathProgress.value.coerceIn(0f, 1f)
                 }, contentAlignment = Alignment.Center) {
                     CompositionLocalProvider(LocalContentColor provides content) { successIcon() }
                 }

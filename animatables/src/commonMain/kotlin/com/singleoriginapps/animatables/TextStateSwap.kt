@@ -113,7 +113,7 @@ internal fun TextSwapContent(
             contentAlignment = Alignment.Center,
             transitionSpec = {
                 (slideInVertically(incomingMovement) { if (enabled) travel else 0 }
-                    togetherWith slideOutVertically(outgoingMovement) { if (enabled) -travel else 0 })
+                        togetherWith slideOutVertically(outgoingMovement) { if (enabled) -travel else 0 })
                     .using(SizeTransform(clip = false) { _, _ -> size })
             },
             label = "Text state handoff",

@@ -39,6 +39,7 @@ internal object SpeechSamples {
         }
     }
 
-    fun level(frame: Int): Float = amplitudes[((frame % amplitudes.size) + amplitudes.size) % amplitudes.size]
+    fun level(frame: Int): Float =
+        amplitudes[((frame % amplitudes.size) + amplitudes.size) % amplitudes.size]
 
 }

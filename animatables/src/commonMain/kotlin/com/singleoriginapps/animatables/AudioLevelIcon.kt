@@ -32,15 +32,24 @@ public fun AudioLevelIcon(
 ) {
     val enabled = rememberMotionEnabled()
     val amplitude = rememberAudioLevel(if (!active) 0f else if (!enabled) .5f else level, enabled)
-    Canvas(modifier.size(24.dp).clearAndSetSemantics { if (label != null) contentDescription = label }) {
+    Canvas(
+        modifier.size(24.dp)
+            .clearAndSetSemantics { if (label != null) contentDescription = label }) {
         val slot = size.width / 5
         val stroke = minOf(2.5.dp.toPx(), slot * .6f, size.height)
         val profile = floatArrayOf(.4f, .75f, 1f, .75f, .4f)
         profile.forEachIndexed { index, weight ->
-            val fraction = if (active) (.15f + .85f * normalizedFraction(amplitude.value)) * weight else 0f
+            val fraction =
+                if (active) (.15f + .85f * normalizedFraction(amplitude.value)) * weight else 0f
             val half = (size.height - stroke).coerceAtLeast(0f) * fraction / 2
             val x = slot * (index + .5f)
-            drawLine(color, Offset(x, center.y - half), Offset(x, center.y + half), stroke, StrokeCap.Round)
+            drawLine(
+                color,
+                Offset(x, center.y - half),
+                Offset(x, center.y + half),
+                stroke,
+                StrokeCap.Round
+            )
         }
     }
 }

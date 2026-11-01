@@ -10,8 +10,8 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,8 +73,9 @@ public fun ShimmerText(
     // SrcIn retains caller glyph alpha. Only the spotlight becomes lighter in light mode;
     // the rest of the text keeps the stronger dark ink instead of a washed-out blanket shade.
     val shaded = if (lightBackground) strongInk.copy(alpha = 1f)
-        else remember(base, surface) { readableShimmerShade(base, surface) }
-    val highlight = if (lightBackground) readableShimmerShade(strongInk.copy(alpha = base.alpha), surface)
+    else remember(base, surface) { readableShimmerShade(base, surface) }
+    val highlight =
+        if (lightBackground) readableShimmerShade(strongInk.copy(alpha = base.alpha), surface)
         else strongInk.copy(alpha = 1f)
     LaunchedEffect(text, active, replayKey, enabled, continuous) {
         running = false
@@ -100,7 +101,8 @@ public fun ShimmerText(
                 drawContent()
                 if (active && enabled && (repeating != null || running) && size.width > 0f) {
                     val center = (-1f + (repeating?.value ?: progress.value) * 3f) * size.width
-                    val halfBand = (size.width * ShimmerContrastTokens.HalfBandFraction).coerceAtLeast(12.dp.toPx())
+                    val halfBand =
+                        (size.width * ShimmerContrastTokens.HalfBandFraction).coerceAtLeast(12.dp.toPx())
                     // SrcIn recolors only the alpha laid down by native text in this isolated
                     // layer. Nothing is painted into the label's rectangular background.
                     drawRect(

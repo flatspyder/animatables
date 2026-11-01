@@ -12,11 +12,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithContentDescription
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
@@ -25,7 +24,8 @@ import org.junit.Rule
 import org.junit.Test
 
 class ActionAudioZeroScaleTest {
-    @get:Rule val compose = createComposeRule(effectContext = object : MotionDurationScale {
+    @get:Rule
+    val compose = createComposeRule(effectContext = object : MotionDurationScale {
         override val scaleFactor = 0f
     })
 
@@ -52,7 +52,12 @@ class ActionAudioZeroScaleTest {
         compose.runOnIdle { active.value = false }
         compose.mainClock.advanceTimeBy(64)
         compose.onAllNodesWithContentDescription("Audio inactive").assertCountEquals(2)
-        org.junit.Assert.assertTrue(audioChangedPixels(first, compose.onNodeWithTag("audio").captureToImage()) > 20)
+        org.junit.Assert.assertTrue(
+            audioChangedPixels(
+                first,
+                compose.onNodeWithTag("audio").captureToImage()
+            ) > 20
+        )
     }
 
     @Test
@@ -63,9 +68,20 @@ class ActionAudioZeroScaleTest {
         compose.setContent {
             MaterialTheme {
                 Column {
-                    AsyncActionButton(state.value, {}, "Save", workingLabel = "Saving", successLabel = "Saved")
-                    RefreshableContent(true, loading.value, error = if (loading.value) null else "Offline",
-                        onRetry = {}, placeholder = { Text("Skeleton") }, empty = { Text("Empty") }) { Text("Previous data") }
+                    AsyncActionButton(
+                        state.value,
+                        {},
+                        "Save",
+                        workingLabel = "Saving",
+                        successLabel = "Saved"
+                    )
+                    RefreshableContent(
+                        true,
+                        loading.value,
+                        error = if (loading.value) null else "Offline",
+                        onRetry = {},
+                        placeholder = { Text("Skeleton") },
+                        empty = { Text("Empty") }) { Text("Previous data") }
                 }
             }
         }

@@ -16,10 +16,25 @@ local.properties
 *.apk
 *.aab
 
-# Local signing configuration and keys
+# Local signing configuration, keys, and credentials
 *.jks
 *.keystore
+*.gpg
+*.asc
+*.key
+*.pem
+*.p12
+secring.gpg
 keystore.properties
+signing.properties
+*.properties.local
+.env
+.env.*
+
+# OS and editor metadata
+.DS_Store
+._*
+.vscode/
 
 # Generated previews, recordings, and other visual evidence
 /captures/

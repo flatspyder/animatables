@@ -7,6 +7,8 @@ entirely on your local machine. No private keys or passwords leave your computer
 Usage:
   python3 scripts/release.py 0.1.0-alpha01
 """
+from __future__ import annotations
+
 import argparse
 import base64
 import getpass

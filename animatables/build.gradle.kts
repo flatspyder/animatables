@@ -81,7 +81,8 @@ publishing {
 }
 
 val signingKey = System.getenv("SIGNING_KEY") ?: findProperty("signing.key") as? String
-val signingPassword = System.getenv("SIGNING_PASSWORD") ?: findProperty("signing.password") as? String
+val signingPassword =
+    System.getenv("SIGNING_PASSWORD") ?: findProperty("signing.password") as? String
 val signingKeyId = System.getenv("SIGNING_KEY_ID") ?: findProperty("signing.keyId") as? String
 
 signing {
@@ -90,6 +91,8 @@ signing {
     } else {
         useGpgCmd()
     }
+    isRequired =
+        providers.environmentVariable("RELEASE_VERSION").isPresent || !signingKey.isNullOrBlank()
     sign(publishing.publications)
 }
 

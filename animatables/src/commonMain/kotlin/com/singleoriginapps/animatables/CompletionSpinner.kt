@@ -54,7 +54,8 @@ public fun CompletionSpinner(
     val enabled = rememberMotionEnabled()
     val indicatorProgress = remember {
         {
-            latestProgress.value?.invoke()?.let { if (it.isNaN()) 0f else it.coerceIn(0f, 1f) } ?: .25f
+            latestProgress.value?.invoke()?.let { if (it.isNaN()) 0f else it.coerceIn(0f, 1f) }
+                ?: .25f
         }
     }
     SuccessFeedback(
@@ -62,8 +63,9 @@ public fun CompletionSpinner(
         fill = completeColor, content = completeContentColor, successIcon = successIcon,
         initialCompleteStatic = true, enabled = enabled,
         pendingSemantics = {
-            progressBarRangeInfo = if (latestProgress.value == null) ProgressBarRangeInfo.Indeterminate
-            else ProgressBarRangeInfo(indicatorProgress(), 0f..1f)
+            progressBarRangeInfo =
+                if (latestProgress.value == null) ProgressBarRangeInfo.Indeterminate
+                else ProgressBarRangeInfo(indicatorProgress(), 0f..1f)
         },
     ) { fraction, show ->
         if (show || !completed) {
@@ -72,18 +74,29 @@ public fun CompletionSpinner(
             }
             when (style) {
                 CompletionSpinnerStyle.Standard -> if (progress == null && enabled) {
-                    CircularProgressIndicator(modifier = spinnerModifier, color = color,
-                        trackColor = trackColor, strokeWidth = 4.dp)
+                    CircularProgressIndicator(
+                        modifier = spinnerModifier, color = color,
+                        trackColor = trackColor, strokeWidth = 4.dp
+                    )
                 } else {
-                    CircularProgressIndicator(progress = indicatorProgress, modifier = spinnerModifier,
-                        color = color, trackColor = trackColor, strokeWidth = 4.dp)
+                    CircularProgressIndicator(
+                        progress = indicatorProgress, modifier = spinnerModifier,
+                        color = color, trackColor = trackColor, strokeWidth = 4.dp
+                    )
                 }
+
                 CompletionSpinnerStyle.Wavy -> if (progress == null && enabled) {
-                    CircularWavyProgressIndicator(modifier = spinnerModifier, color = color, trackColor = trackColor)
+                    CircularWavyProgressIndicator(
+                        modifier = spinnerModifier,
+                        color = color,
+                        trackColor = trackColor
+                    )
                 } else {
-                    CircularWavyProgressIndicator(progress = indicatorProgress, modifier = spinnerModifier,
+                    CircularWavyProgressIndicator(
+                        progress = indicatorProgress, modifier = spinnerModifier,
                         color = color, trackColor = trackColor,
-                        waveSpeed = if (enabled) WavyProgressIndicatorDefaults.CircularWavelength else 0.dp)
+                        waveSpeed = if (enabled) WavyProgressIndicatorDefaults.CircularWavelength else 0.dp
+                    )
                 }
             }
         }

@@ -41,10 +41,14 @@ public fun AudioActivityRing(
             val stroke = 2.dp.toPx()
             val room = (size.minDimension / 2 - stroke).coerceAtLeast(0f)
             val radius = (room - 6.dp.toPx() + 4.dp.toPx() * fraction).coerceIn(0f, room)
-            drawCircle(color.copy(alpha = color.alpha * (if (active) .12f + .12f * fraction else .08f)),
-                radius = room)
-            drawCircle(color.copy(alpha = color.alpha * (if (active) .6f + .4f * fraction else .3f)),
-                radius = radius, style = Stroke(stroke + 2.dp.toPx() * fraction))
+            drawCircle(
+                color.copy(alpha = color.alpha * (if (active) .12f + .12f * fraction else .08f)),
+                radius = room
+            )
+            drawCircle(
+                color.copy(alpha = color.alpha * (if (active) .6f + .4f * fraction else .3f)),
+                radius = radius, style = Stroke(stroke + 2.dp.toPx() * fraction)
+            )
         }
         Box(Modifier.padding(12.dp), contentAlignment = Alignment.Center, content = content)
     }

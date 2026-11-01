@@ -207,7 +207,10 @@ class ReferenceFidelityTest {
             if ((x < left || x >= right) && pixels[x, y].red < .98f) fringe++
         }
         saveReferenceEvidence("soft-focus-unclipped-fringe", image)
-        assertTrue("Fading content must retain the soft fringe beyond its layout bounds", fringe > 10)
+        assertTrue(
+            "Fading content must retain the soft fringe beyond its layout bounds",
+            fringe > 10
+        )
     }
 
     @Test

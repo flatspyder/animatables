@@ -66,7 +66,11 @@ val checkCatalogCoverage = tasks.register<Exec>("checkCatalogCoverage") {
         rootProject.layout.projectDirectory.file("web-gallery/scripts/generate-gallery.py"),
         rootProject.layout.projectDirectory.file("web-gallery/src/wasmJsMain/kotlin/Gallery.kt"),
     )
-    commandLine("python3", rootProject.layout.projectDirectory.file("web-gallery/scripts/generate-gallery.py").asFile, "--check-coverage")
+    commandLine(
+        "python3",
+        rootProject.layout.projectDirectory.file("web-gallery/scripts/generate-gallery.py").asFile,
+        "--check-coverage"
+    )
 }
 
 tasks.named("preBuild") { dependsOn(checkCatalogCoverage) }

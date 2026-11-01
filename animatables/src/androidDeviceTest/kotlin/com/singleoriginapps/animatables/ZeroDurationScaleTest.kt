@@ -1,15 +1,15 @@
 package com.singleoriginapps.animatables
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 
@@ -28,7 +28,11 @@ class ZeroDurationScaleTest {
             MaterialTheme {
                 MotionContent(state.value) { complete ->
                     if (complete) {
-                        SuccessCheck(true, modifier = Modifier.size(32.dp), label = "Upload complete")
+                        SuccessCheck(
+                            true,
+                            modifier = Modifier.size(32.dp),
+                            label = "Upload complete"
+                        )
                         Text("Saved")
                     } else Text("Saving")
                 }

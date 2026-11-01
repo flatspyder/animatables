@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -18,21 +17,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 
 /** Caller-owned outcome of an action; changing this value never starts work or resets a timer. */
 public enum class AsyncActionState { Idle, Working, Success, Error }
@@ -79,28 +79,35 @@ public fun AsyncActionButton(
         enabled = enabled,
         modifier = modifier.width(IntrinsicSize.Max).semantics {
             if (state == AsyncActionState.Working) {
-                progressBarRangeInfo = progress?.let { ProgressBarRangeInfo(normalizedFraction(it()), 0f..1f) }
-                    ?: ProgressBarRangeInfo.Indeterminate
+                progressBarRangeInfo =
+                    progress?.let { ProgressBarRangeInfo(normalizedFraction(it()), 0f..1f) }
+                        ?: ProgressBarRangeInfo.Indeterminate
             }
         },
     ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Box(Modifier.size(20.dp).clearAndSetSemantics {}, contentAlignment = Alignment.Center) {
                 Crossfade(state, animationSpec = effects, label = "Action icon") { displayed ->
                     ActionGlyph(displayed, progress)
                 }
             }
-            AnimatedContent(state, modifier = Modifier.weight(1f),
+            AnimatedContent(
+                state, modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center,
                 transitionSpec = {
                     ((fadeIn(effects) + slideInVertically(movement) { if (motion) travel else 0 })
-                        togetherWith fadeOut(effects))
+                            togetherWith fadeOut(effects))
                         .using(SizeTransform(clip = false) { _, _ -> spatial })
-                }, label = "Action label") { displayed ->
-                Text(labels[displayed.ordinal], textAlign = TextAlign.Center,
+                }, label = "Action label"
+            ) { displayed ->
+                Text(
+                    labels[displayed.ordinal], textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth().then(
-                        if (displayed == state) Modifier else Modifier.clearAndSetSemantics {}))
+                        if (displayed == state) Modifier else Modifier.clearAndSetSemantics {})
+                )
             }
             // Match the icon slot and the Row's two equal gaps, including when idle.
             Box(Modifier.size(20.dp).clearAndSetSemantics {})
@@ -116,8 +123,10 @@ private fun ActionGlyph(state: AsyncActionState, progress: (() -> Float)?) {
         if (progress == null && rememberMotionEnabled()) {
             CircularProgressIndicator(modifier = modifier, color = color, strokeWidth = 2.dp)
         } else {
-            CircularProgressIndicator(progress = { progress?.invoke()?.let(::normalizedFraction) ?: .25f },
-                modifier = modifier, color = color, strokeWidth = 2.dp)
+            CircularProgressIndicator(
+                progress = { progress?.invoke()?.let(::normalizedFraction) ?: .25f },
+                modifier = modifier, color = color, strokeWidth = 2.dp
+            )
         }
     } else if (state != AsyncActionState.Idle) {
         Icon(

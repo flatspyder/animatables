@@ -7,7 +7,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 internal val LocalAnimatablesMotionEnabled = staticCompositionLocalOf { true }
 
 /** Sanitize normalized caller data before it reaches geometry or progress semantics. */
-internal fun normalizedFraction(value: Float): Float = if (value.isNaN()) 0f else value.coerceIn(0f, 1f)
+internal fun normalizedFraction(value: Float): Float =
+    if (value.isNaN()) 0f else value.coerceIn(0f, 1f)
 
 /**
  * Controls optional Animatables motion within [content], without replacing the host Material theme.

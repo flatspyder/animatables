@@ -1,9 +1,9 @@
 package com.singleoriginapps.animatables
 
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -72,20 +72,24 @@ public fun AudioWaveform(
         val slot = size.width / barCount
         val stroke = minOf(8.dp.toPx(), slot * .6f, size.height)
         bars.forEachIndexed { index, bar ->
-            val height = stroke + (size.height - stroke).coerceAtLeast(0f) * normalizedFraction(bar.value)
+            val height =
+                stroke + (size.height - stroke).coerceAtLeast(0f) * normalizedFraction(bar.value)
             val x = slot * (index + .5f)
-            drawLine(color, Offset(x, center.y - (height - stroke) / 2),
-                Offset(x, center.y + (height - stroke) / 2), stroke, StrokeCap.Round)
+            drawLine(
+                color, Offset(x, center.y - (height - stroke) / 2),
+                Offset(x, center.y + (height - stroke) / 2), stroke, StrokeCap.Round
+            )
         }
     }
 }
 
 @Composable
-internal fun rememberAudioLevel(target: Float, enabled: Boolean): State<Float> = animateFloatAsState(
-    targetValue = normalizedFraction(target),
-    animationSpec = if (enabled) MaterialTheme.motionScheme.fastEffectsSpec() else snap(),
-    label = "Audio level",
-)
+internal fun rememberAudioLevel(target: Float, enabled: Boolean): State<Float> =
+    animateFloatAsState(
+        targetValue = normalizedFraction(target),
+        animationSpec = if (enabled) MaterialTheme.motionScheme.fastEffectsSpec() else snap(),
+        label = "Audio level",
+    )
 
 internal fun audioSamples(levels: List<Float>, count: Int): List<Float> = List(count) { index ->
     if (levels.isEmpty()) 0f

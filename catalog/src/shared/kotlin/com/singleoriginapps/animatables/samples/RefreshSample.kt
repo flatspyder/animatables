@@ -4,8 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,14 +40,19 @@ internal fun RefreshSample(refreshKey: Int = 0) {
         if (loading) {
             delay(1400)
             if (offline) error = "You’re offline. Saved places are still available."
-            else { error = null; updates++ }
+            else {
+                error = null; updates++
+            }
             loading = false
         }
     }
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text("Choose a place, then refresh or try offline. Your selection stays available.",
-            style = MaterialTheme.typography.bodySmall)
-        RefreshableContent(hasContent = true, loading = loading, error = error,
+        Text(
+            "Choose a place, then refresh or try offline. Your selection stays available.",
+            style = MaterialTheme.typography.bodySmall
+        )
+        RefreshableContent(
+            hasContent = true, loading = loading, error = error,
             onRetry = { offline = false; loading = true },
             refreshingLabel = "Checking for updates…", placeholder = {}, empty = {}) {
             var selected by rememberSaveable { mutableStateOf("Kyoto") }
@@ -55,19 +60,29 @@ internal fun RefreshSample(refreshKey: Int = 0) {
                 Text("Saved places", style = MaterialTheme.typography.titleLarge)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf("Kyoto", "Lisbon", "Copenhagen").forEach { place ->
-                        FilterChip(selected == place, onClick = { selected = place }, label = { Text(place) })
+                        FilterChip(
+                            selected == place,
+                            onClick = { selected = place },
+                            label = { Text(place) })
                     }
                 }
                 Text("Exploring $selected", style = MaterialTheme.typography.titleMedium)
-                Text(if (updates > 0) "Updated just now" else "Showing saved information",
-                    style = MaterialTheme.typography.bodySmall)
+                Text(
+                    if (updates > 0) "Updated just now" else "Showing saved information",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FilledTonalButton(onClick = {
-                if (loading) loading = false else { offline = false; loading = true }
+                if (loading) loading = false else {
+                    offline = false; loading = true
+                }
             }) { Text(if (loading) "Cancel refresh" else "Refresh") }
-            TextButton(onClick = { offline = true; loading = true }, enabled = !loading) { Text("Try offline") }
+            TextButton(
+                onClick = { offline = true; loading = true },
+                enabled = !loading
+            ) { Text("Try offline") }
         }
     }
 }

@@ -27,10 +27,9 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Icon
-import com.singleoriginapps.animatables.samples.MaterialSymbols
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -64,10 +63,11 @@ import androidx.compose.ui.unit.sp
 import com.singleoriginapps.animatables.AnimatablesMotion
 import com.singleoriginapps.animatables.AnimatedCountBadge
 import com.singleoriginapps.animatables.AnimatedStatusText
-import com.singleoriginapps.animatables.SuccessCheck
 import com.singleoriginapps.animatables.ExpandableCard
 import com.singleoriginapps.animatables.LoadingContent
 import com.singleoriginapps.animatables.MotionContent
+import com.singleoriginapps.animatables.SuccessCheck
+import com.singleoriginapps.animatables.samples.MaterialSymbols
 import kotlinx.coroutines.delay
 
 private enum class Collection(val title: String) {
@@ -86,11 +86,41 @@ private data class Demo(
 )
 
 private val demos = listOf(
-    Demo("async-action", "Action feedback", "Save, working, success and retry in one stable control.", Collection.Feedback, "AsyncActionButton"),
-    Demo("refresh", "Refresh and recover", "Refresh saved places, simulate being offline, then retry without losing your selection.", Collection.Loading, "RefreshableContent"),
-    Demo("waveform", "Audio waveform", "Anchored energy bands respond to speech attacks and pauses.", Collection.Audio, "AudioWaveform"),
-    Demo("audio-icon", "Audio level icon", "Compact audio activity inside an existing control.", Collection.Audio, "AudioLevelIcon"),
-    Demo("audio-ring", "Recording activity ring", "A reactive halo keeps the recording button in place.", Collection.Audio, "AudioActivityRing"),
+    Demo(
+        "async-action",
+        "Action feedback",
+        "Save, working, success and retry in one stable control.",
+        Collection.Feedback,
+        "AsyncActionButton"
+    ),
+    Demo(
+        "refresh",
+        "Refresh and recover",
+        "Refresh saved places, simulate being offline, then retry without losing your selection.",
+        Collection.Loading,
+        "RefreshableContent"
+    ),
+    Demo(
+        "waveform",
+        "Audio waveform",
+        "Anchored energy bands respond to speech attacks and pauses.",
+        Collection.Audio,
+        "AudioWaveform"
+    ),
+    Demo(
+        "audio-icon",
+        "Audio level icon",
+        "Compact audio activity inside an existing control.",
+        Collection.Audio,
+        "AudioLevelIcon"
+    ),
+    Demo(
+        "audio-ring",
+        "Recording activity ring",
+        "A reactive halo keeps the recording button in place.",
+        Collection.Audio,
+        "AudioActivityRing"
+    ),
     Demo(
         "number",
         "Number pop-in",
@@ -450,7 +480,13 @@ private fun DemoContent(
         "03" -> BadgeDemo()
         "04" -> LoadingDemo()
         "06" -> ContentDemo()
-        else -> MotionEffectDemo(id, spinnerStep, spinnerWavy, spinnerDeterminate, customSuccessIcon)
+        else -> MotionEffectDemo(
+            id,
+            spinnerStep,
+            spinnerWavy,
+            spinnerDeterminate,
+            customSuccessIcon
+        )
     }
 }
 
@@ -478,8 +514,10 @@ private fun EffectInspector(
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             TextButton(onClick = onClose) {
-                Icon(MaterialSymbols.ArrowBack,
-                    contentDescription = null, modifier = Modifier.size(18.dp))
+                Icon(
+                    MaterialSymbols.ArrowBack,
+                    contentDescription = null, modifier = Modifier.size(18.dp)
+                )
                 Spacer(Modifier.width(8.dp))
                 Text("Back to collection")
             }
@@ -542,7 +580,15 @@ private fun EffectInspector(
                     }
                     .padding(24.dp),
                 contentAlignment = Alignment.Center,
-            ) { DemoContent(demo.id, spinnerStep, spinnerWavy, spinnerDeterminate, customSuccessIcon) }
+            ) {
+                DemoContent(
+                    demo.id,
+                    spinnerStep,
+                    spinnerWavy,
+                    spinnerDeterminate,
+                    customSuccessIcon
+                )
+            }
             if (demo.id == "spinner") {
                 Text("Spinner options", style = MaterialTheme.typography.titleMedium)
                 Text("Appearance", style = MaterialTheme.typography.labelLarge)
@@ -552,8 +598,14 @@ private fun EffectInspector(
                 }
                 Text("Progress mode", style = MaterialTheme.typography.labelLarge)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    FilterChip(spinnerDeterminate, { spinnerDeterminate = true }, label = { Text("Determinate") })
-                    FilterChip(!spinnerDeterminate, { spinnerDeterminate = false }, label = { Text("Indeterminate") })
+                    FilterChip(
+                        spinnerDeterminate,
+                        { spinnerDeterminate = true },
+                        label = { Text("Determinate") })
+                    FilterChip(
+                        !spinnerDeterminate,
+                        { spinnerDeterminate = false },
+                        label = { Text("Indeterminate") })
                 }
                 FilledTonalButton(onClick = { spinnerStep++ }) { Text("Toggle completion") }
             }
@@ -638,8 +690,10 @@ private fun BadgeDemo() {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { count = (count - 1).coerceAtLeast(0) }) {
-                Icon(MaterialSymbols.Remove,
-                    contentDescription = "Remove notification")
+                Icon(
+                    MaterialSymbols.Remove,
+                    contentDescription = "Remove notification"
+                )
             }
             FilledTonalButton(onClick = { count++ }) { Text("Add one") }
         }
@@ -692,9 +746,11 @@ private fun ProfileSkeleton() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Box(Modifier
-            .size(44.dp)
-            .background(MaterialTheme.colorScheme.outlineVariant, CircleShape))
+        Box(
+            Modifier
+                .size(44.dp)
+                .background(MaterialTheme.colorScheme.outlineVariant, CircleShape)
+        )
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Box(
                 Modifier

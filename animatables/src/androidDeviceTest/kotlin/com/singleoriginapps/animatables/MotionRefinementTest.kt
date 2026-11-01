@@ -1,7 +1,6 @@
 package com.singleoriginapps.animatables
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,7 +21,8 @@ import org.junit.Rule
 import org.junit.Test
 
 class MotionRefinementTest {
-    @get:Rule val compose = createComposeRule()
+    @get:Rule
+    val compose = createComposeRule()
 
     @Test
     fun refreshNeverMovesRetainedContentSidewaysInACenteredHost() {
@@ -32,7 +32,8 @@ class MotionRefinementTest {
         compose.setContent {
             MaterialTheme {
                 Box(Modifier.width(320.dp), contentAlignment = Alignment.Center) {
-                    RefreshableContent(true, loading.value, error = error.value,
+                    RefreshableContent(
+                        true, loading.value, error = error.value,
                         placeholder = {}, empty = {}) {
                         Text("Selected place", Modifier.testTag("retained"))
                     }
@@ -49,7 +50,12 @@ class MotionRefinementTest {
             repeat(12) {
                 compose.mainClock.advanceTimeBy(32)
                 val bounds = compose.onNodeWithTag("retained").fetchSemanticsNode().boundsInRoot
-                assertEquals("Content stays horizontally anchored during notice handoff", original.left, bounds.left, .5f)
+                assertEquals(
+                    "Content stays horizontally anchored during notice handoff",
+                    original.left,
+                    bounds.left,
+                    .5f
+                )
                 assertEquals(original.width, bounds.width, .5f)
             }
         }
@@ -61,9 +67,11 @@ class MotionRefinementTest {
         val count = mutableStateOf(9)
         val motion = mutableStateOf(true)
         compose.setContent {
-            MaterialTheme { AnimatablesMotion(motion.value) {
-                AnimatedCountBadge(count.value, Modifier.testTag("badge"))
-            } }
+            MaterialTheme {
+                AnimatablesMotion(motion.value) {
+                    AnimatedCountBadge(count.value, Modifier.testTag("badge"))
+                }
+            }
         }
         compose.mainClock.advanceTimeBy(700)
         fun width() = compose.onNodeWithTag("badge").fetchSemanticsNode().boundsInRoot.width
@@ -73,7 +81,10 @@ class MotionRefinementTest {
         val growing = width()
         compose.mainClock.advanceTimeBy(700)
         val double = width()
-        assertTrue("The capsule grows smoothly rather than jumping", growing > single && growing < double)
+        assertTrue(
+            "The capsule grows smoothly rather than jumping",
+            growing > single && growing < double
+        )
         compose.runOnIdle { count.value = 9 }
         compose.mainClock.advanceTimeBy(48)
         compose.runOnIdle { count.value = 100 }
@@ -88,10 +99,14 @@ class MotionRefinementTest {
     fun lightShimmerUsesALighterSpotlightOverDarkInk() {
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            MaterialTheme { Surface(color = androidx.compose.ui.graphics.Color.White) {
-                ShimmerText("████████████████", Modifier.testTag("shimmer"),
-                    style = MaterialTheme.typography.headlineMedium.copy(color = androidx.compose.ui.graphics.Color.Black))
-            } }
+            MaterialTheme {
+                Surface(color = androidx.compose.ui.graphics.Color.White) {
+                    ShimmerText(
+                        "████████████████", Modifier.testTag("shimmer"),
+                        style = MaterialTheme.typography.headlineMedium.copy(color = androidx.compose.ui.graphics.Color.Black)
+                    )
+                }
+            }
         }
         compose.mainClock.advanceTimeBy(32)
         val dark = compose.onNodeWithTag("shimmer").captureToImage()
@@ -114,8 +129,10 @@ class MotionRefinementTest {
         }
         assertTrue("The travelling band must lighten dark glyphs", lighter > 30)
         assertEquals("Ink outside the spotlight must not be dimmed", 0, darker)
-        assertTrue("The spotlight has a broad bright centre, not just a faint point",
-            brightInk > solidInk * .3f)
+        assertTrue(
+            "The spotlight has a broad bright centre, not just a faint point",
+            brightInk > solidInk * .3f
+        )
     }
 
     @Test
@@ -125,8 +142,12 @@ class MotionRefinementTest {
         compose.setContent {
             MaterialTheme {
                 Surface {
-                    ShimmerText("Planning the next move", Modifier.testTag("shimmer"), active = active.value,
-                        style = MaterialTheme.typography.headlineMedium.copy(color = MaterialTheme.colorScheme.primary))
+                    ShimmerText(
+                        "Planning the next move",
+                        Modifier.testTag("shimmer"),
+                        active = active.value,
+                        style = MaterialTheme.typography.headlineMedium.copy(color = MaterialTheme.colorScheme.primary)
+                    )
                 }
             }
         }
@@ -134,8 +155,10 @@ class MotionRefinementTest {
         val static = compose.onNodeWithTag("shimmer").captureToImage()
         compose.runOnIdle { active.value = true }
         compose.mainClock.advanceTimeBy(5100)
-        assertTrue("Default shimmer continues and has a visible band on light primary text",
-            changedPixels(static, compose.onNodeWithTag("shimmer").captureToImage()) > 30)
+        assertTrue(
+            "Default shimmer continues and has a visible band on light primary text",
+            changedPixels(static, compose.onNodeWithTag("shimmer").captureToImage()) > 30
+        )
         compose.runOnIdle { active.value = false }
         compose.mainClock.advanceTimeByFrame()
         assertEquals(0, changedPixels(static, compose.onNodeWithTag("shimmer").captureToImage()))
@@ -155,16 +178,20 @@ private fun changedPixels(first: ImageBitmap, second: ImageBitmap): Int {
 }
 
 class MotionRefinementZeroScaleTest {
-    @get:Rule val compose = createComposeRule(effectContext = object : androidx.compose.ui.MotionDurationScale {
-        override val scaleFactor = 0f
-    })
+    @get:Rule
+    val compose =
+        createComposeRule(effectContext = object : androidx.compose.ui.MotionDurationScale {
+            override val scaleFactor = 0f
+        })
 
     @Test
     fun continuousShimmerHasNoOngoingFramesWithSystemAnimationsDisabled() {
         compose.setContent {
-            MaterialTheme { Surface {
-                ShimmerText("A readable resting label", Modifier.testTag("shimmer"))
-            } }
+            MaterialTheme {
+                Surface {
+                    ShimmerText("A readable resting label", Modifier.testTag("shimmer"))
+                }
+            }
         }
         val first = compose.onNodeWithTag("shimmer").captureToImage()
         compose.mainClock.advanceTimeBy(5100)

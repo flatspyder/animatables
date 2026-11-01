@@ -22,6 +22,11 @@ def local_only(path):
         return True
     if any(part in {'build', 'node_modules', '.gradle', '.kotlin'} for part in parts):
         return True
+    filename = parts[-1]
+    if filename in {'local.properties', 'keystore.properties', 'signing.properties'} or filename.startswith('.env'):
+        return True
+    if filename.endswith(('.jks', '.keystore', '.gpg', '.asc', '.key', '.pem', '.p12')):
+        return True
     if not path.startswith('web-gallery/'):
         return False
     if path == 'web-gallery/performance-samples.json':

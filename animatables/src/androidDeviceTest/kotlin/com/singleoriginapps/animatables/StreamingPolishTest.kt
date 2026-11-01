@@ -2,8 +2,8 @@ package com.singleoriginapps.animatables
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -111,8 +111,13 @@ class StreamingPolishTest {
             MaterialTheme {
                 Surface(color = Color.White) {
                     Column {
-                        StreamingText("ALPHA BRAVO", Modifier.width(240.dp).testTag("stream"), style = style)
-                        Text("ALPHA BRAVO", Modifier.width(240.dp), style = style,
+                        StreamingText(
+                            "ALPHA BRAVO",
+                            Modifier.width(240.dp).testTag("stream"),
+                            style = style
+                        )
+                        Text(
+                            "ALPHA BRAVO", Modifier.width(240.dp), style = style,
                             onTextLayout = { reference = it })
                     }
                 }
@@ -124,8 +129,14 @@ class StreamingPolishTest {
         val second = compose.onNodeWithTag("stream").captureToImage()
         val alpha = requireNotNull(reference).getPathForRange(0, 5).getBounds()
         val bravo = requireNotNull(reference).getPathForRange(6, 11).getBounds()
-        assertTrue("The earlier word is still settling", ink(second, alpha) > ink(first, alpha) + 1f)
-        assertTrue("The following word settles at the same time", ink(second, bravo) > ink(first, bravo) + 1f)
+        assertTrue(
+            "The earlier word is still settling",
+            ink(second, alpha) > ink(first, alpha) + 1f
+        )
+        assertTrue(
+            "The following word settles at the same time",
+            ink(second, bravo) > ink(first, bravo) + 1f
+        )
     }
 
     @Test
@@ -222,11 +233,15 @@ class StreamingPolishTest {
         val maximum = mutableStateOf(1)
         val history = mutableStateOf(true)
         compose.setContent {
-            MaterialTheme { Surface(color = Color.White) {
-                ReasoningStream(if (history.value) all else all.takeLast(maximum.value),
-                    Modifier.width(240.dp).height(160.dp).testTag("activity"),
-                    maxVisibleEntries = maximum.value, active = false, style = style)
-            } }
+            MaterialTheme {
+                Surface(color = Color.White) {
+                    ReasoningStream(
+                        if (history.value) all else all.takeLast(maximum.value),
+                        Modifier.width(240.dp).height(160.dp).testTag("activity"),
+                        maxVisibleEntries = maximum.value, active = false, style = style
+                    )
+                }
+            }
         }
         for (count in 1..3) {
             compose.runOnIdle { maximum.value = count; history.value = true }
@@ -235,8 +250,10 @@ class StreamingPolishTest {
             compose.runOnIdle { history.value = false }
             compose.mainClock.advanceTimeByFrame()
             val reference = compose.onNodeWithTag("activity").captureToImage()
-            assertEquals("Exactly $count entries render, even with excess container height", 0f,
-                pixelDifferenceFraction(actual, reference), .001f)
+            assertEquals(
+                "Exactly $count entries render, even with excess container height", 0f,
+                pixelDifferenceFraction(actual, reference), .001f
+            )
         }
     }
 
@@ -246,10 +263,14 @@ class StreamingPolishTest {
         val entries = mutableStateOf(List(1) { "████████████████" })
         val active = mutableStateOf(true)
         compose.setContent {
-            MaterialTheme { Surface(color = Color.White) {
-                ReasoningStream(entries.value, Modifier.width(240.dp).testTag("activity"),
-                    active = active.value, style = style)
-            } }
+            MaterialTheme {
+                Surface(color = Color.White) {
+                    ReasoningStream(
+                        entries.value, Modifier.width(240.dp).testTag("activity"),
+                        active = active.value, style = style
+                    )
+                }
+            }
         }
         compose.mainClock.advanceTimeBy(700)
         compose.runOnIdle { entries.value += "████████████████" }
@@ -258,8 +279,10 @@ class StreamingPolishTest {
         compose.runOnIdle { active.value = false }
         compose.mainClock.advanceTimeByFrame()
         val static = compose.onNodeWithTag("activity").captureToImage()
-        assertEquals("Edges stay opaque when no text crosses the viewport", 0f,
-            pixelDifferenceFraction(growing, static), .001f)
+        assertEquals(
+            "Edges stay opaque when no text crosses the viewport", 0f,
+            pixelDifferenceFraction(growing, static), .001f
+        )
     }
 
     @Test
@@ -270,8 +293,10 @@ class StreamingPolishTest {
         compose.setContent {
             MaterialTheme {
                 Surface(color = Color.White) {
-                    ReasoningStream(entries.value, Modifier.width(240.dp).testTag("activity"),
-                        active = active.value, style = style)
+                    ReasoningStream(
+                        entries.value, Modifier.width(240.dp).testTag("activity"),
+                        active = active.value, style = style
+                    )
                 }
             }
         }
@@ -287,12 +312,21 @@ class StreamingPolishTest {
         compose.mainClock.advanceTimeByFrame()
         val unmasked = compose.onNodeWithTag("activity").captureToImage()
         val middle = moving.height / 2
-        assertTrue("Outgoing text has a visible top-edge gradient",
-            grayRows(moving, 0 until middle) > grayRows(unmasked, 0 until middle) + 3)
-        assertTrue("Incoming text has a visible bottom-edge gradient",
-            grayRows(moving, middle until moving.height) > grayRows(unmasked, middle until unmasked.height) + 3)
-        assertEquals("Only the two latest entries remain, fully opaque", 0f,
-            pixelDifferenceFraction(settled, unmasked), .001f)
+        assertTrue(
+            "Outgoing text has a visible top-edge gradient",
+            grayRows(moving, 0 until middle) > grayRows(unmasked, 0 until middle) + 3
+        )
+        assertTrue(
+            "Incoming text has a visible bottom-edge gradient",
+            grayRows(moving, middle until moving.height) > grayRows(
+                unmasked,
+                middle until unmasked.height
+            ) + 3
+        )
+        assertEquals(
+            "Only the two latest entries remain, fully opaque", 0f,
+            pixelDifferenceFraction(settled, unmasked), .001f
+        )
     }
 }
 

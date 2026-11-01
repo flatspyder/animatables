@@ -3,18 +3,18 @@ package com.singleoriginapps.animatables
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -33,7 +33,8 @@ import org.junit.Test
 import kotlin.math.abs
 
 class CompletionSpinnerTest {
-    @get:Rule val compose = createComposeRule()
+    @get:Rule
+    val compose = createComposeRule()
 
     @Test
     fun successEntranceMatchesAtEverySampledFrame() {
@@ -42,13 +43,19 @@ class CompletionSpinnerTest {
         compose.setContent {
             MaterialTheme(colorScheme = lightColorScheme(outline = Color.Transparent)) {
                 Row(Modifier.testTag("pair")) {
-                    Box(Modifier.size(128.dp).background(Color.White).testTag("spinner"),
-                        contentAlignment = Alignment.Center) {
-                        CompletionSpinner(complete = complete.value, color = Color.Transparent,
-                            trackColor = Color.Transparent)
+                    Box(
+                        Modifier.size(128.dp).background(Color.White).testTag("spinner"),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CompletionSpinner(
+                            complete = complete.value, color = Color.Transparent,
+                            trackColor = Color.Transparent
+                        )
                     }
-                    Box(Modifier.size(128.dp).background(Color.White).testTag("success"),
-                        contentAlignment = Alignment.Center) { SuccessCheck(complete = complete.value) }
+                    Box(
+                        Modifier.size(128.dp).background(Color.White).testTag("success"),
+                        contentAlignment = Alignment.Center
+                    ) { SuccessCheck(complete = complete.value) }
                 }
             }
         }
@@ -70,20 +77,30 @@ class CompletionSpinnerTest {
             for (y in 0 until pair.height) for (x in 0 until halfWidth) {
                 val left = pixels[x, y]
                 val right = pixels[x + halfWidth, y]
-                val delta = maxOf(abs(left.red - right.red), abs(left.green - right.green),
-                    abs(left.blue - right.blue), abs(left.alpha - right.alpha))
+                val delta = maxOf(
+                    abs(left.red - right.red), abs(left.green - right.green),
+                    abs(left.blue - right.blue), abs(left.alpha - right.alpha)
+                )
                 largestDifference = maxOf(largestDifference, delta)
                 if (delta > tolerance) different++
             }
-            assertEquals("Success entrance differs after $elapsed ms (max delta $largestDifference)", 0, different)
+            assertEquals(
+                "Success entrance differs after $elapsed ms (max delta $largestDifference)",
+                0,
+                different
+            )
         }
     }
 
     @Test
     fun customSuccessIconIsCenteredAndInheritsContentColor() {
         compose.setContent {
-            MaterialTheme(colorScheme = lightColorScheme(primaryContainer = Color.Blue,
-                onPrimaryContainer = Color.Red)) {
+            MaterialTheme(
+                colorScheme = lightColorScheme(
+                    primaryContainer = Color.Blue,
+                    onPrimaryContainer = Color.Red
+                )
+            ) {
                 AnimatablesMotion(false) {
                     Row {
                         val icon: @androidx.compose.runtime.Composable () -> Unit = {
@@ -100,12 +117,18 @@ class CompletionSpinnerTest {
             }
         }
         val spinner = compose.onNodeWithTag("spinner").captureToImage()
-        assertEquals(0, differentSpinnerPixels(spinner, compose.onNodeWithTag("success").captureToImage()))
+        assertEquals(
+            0,
+            differentSpinnerPixels(spinner, compose.onNodeWithTag("success").captureToImage())
+        )
         val pixels = spinner.toPixelMap()
         val center = pixels[spinner.width / 2, spinner.height / 2]
         val edge = pixels[spinner.width / 10, spinner.height / 2]
         assertTrue("Icon inherits the content color", center.red > .9f && center.blue < .1f)
-        assertTrue("Icon stays inside its centered half-size slot", edge.blue > .9f && edge.red < .1f)
+        assertTrue(
+            "Icon stays inside its centered half-size slot",
+            edge.blue > .9f && edge.red < .1f
+        )
     }
 
     @Test
@@ -119,7 +142,8 @@ class CompletionSpinnerTest {
         fun assertProgress(expected: Float) {
             compose.onNodeWithContentDescription("Loading").assert(
                 SemanticsMatcher.expectValue(
-                    SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo(expected, 0f..1f),
+                    SemanticsProperties.ProgressBarRangeInfo,
+                    ProgressBarRangeInfo(expected, 0f..1f),
                 ),
             )
         }
@@ -142,8 +166,10 @@ class CompletionSpinnerTest {
         val complete = mutableStateOf(false)
         compose.setContent {
             MaterialTheme {
-                CompletionSpinner(progress = { .3f }, complete = complete.value,
-                    label = "Sending", completeLabel = "Sent")
+                CompletionSpinner(
+                    progress = { .3f }, complete = complete.value,
+                    label = "Sending", completeLabel = "Sent"
+                )
             }
         }
         compose.mainClock.autoAdvance = false
@@ -165,8 +191,10 @@ class CompletionSpinnerTest {
         compose.setContent {
             MaterialTheme {
                 AnimatablesMotion(enabled.value) {
-                    Box(Modifier.size(96.dp).background(MaterialTheme.colorScheme.surface)
-                        .testTag("capture"), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier.size(96.dp).background(MaterialTheme.colorScheme.surface)
+                            .testTag("capture"), contentAlignment = Alignment.Center
+                    ) {
                         CompletionSpinner(progress = { .4f }, complete = complete.value)
                     }
                 }
@@ -186,8 +214,10 @@ class CompletionSpinnerTest {
         compose.runOnIdle { enabled.value = false }
         compose.mainClock.advanceTimeByFrame()
         val disabled = compose.onNodeWithTag("capture").captureToImage()
-        assertEquals("Interrupted motion must reach the complete resting check", 0,
-            changedSpinnerPixels(settled, disabled))
+        assertEquals(
+            "Interrupted motion must reach the complete resting check", 0,
+            changedSpinnerPixels(settled, disabled)
+        )
     }
 
     @Test
@@ -195,8 +225,10 @@ class CompletionSpinnerTest {
         compose.mainClock.autoAdvance = false
         compose.setContent {
             MaterialTheme {
-                Box(Modifier.size(96.dp).background(MaterialTheme.colorScheme.surface)
-                    .testTag("capture"), contentAlignment = Alignment.Center) {
+                Box(
+                    Modifier.size(96.dp).background(MaterialTheme.colorScheme.surface)
+                        .testTag("capture"), contentAlignment = Alignment.Center
+                ) {
                     CompletionSpinner(complete = true)
                 }
             }
@@ -206,8 +238,12 @@ class CompletionSpinnerTest {
         val middle = compose.onNodeWithTag("capture").captureToImage()
         compose.mainClock.advanceTimeBy(2000)
         assertEquals(0, changedSpinnerPixels(initial, middle))
-        assertEquals(0, changedSpinnerPixels(initial,
-            compose.onNodeWithTag("capture").captureToImage()))
+        assertEquals(
+            0, changedSpinnerPixels(
+                initial,
+                compose.onNodeWithTag("capture").captureToImage()
+            )
+        )
     }
 
     @Test
@@ -218,24 +254,35 @@ class CompletionSpinnerTest {
                 AnimatablesMotion(false) {
                     Row(Modifier.background(MaterialTheme.colorScheme.surface).testTag("capture")) {
                         CompletionSpinner(label = "Standard loading")
-                        CompletionSpinner(style = CompletionSpinnerStyle.Wavy, label = "Wavy loading")
+                        CompletionSpinner(
+                            style = CompletionSpinnerStyle.Wavy,
+                            label = "Wavy loading"
+                        )
                     }
                 }
             }
         }
         val initial = compose.onNodeWithTag("capture").captureToImage()
         compose.mainClock.advanceTimeBy(1200)
-        assertEquals(0, changedSpinnerPixels(initial,
-            compose.onNodeWithTag("capture").captureToImage()))
+        assertEquals(
+            0, changedSpinnerPixels(
+                initial,
+                compose.onNodeWithTag("capture").captureToImage()
+            )
+        )
         listOf("Standard loading", "Wavy loading").forEach {
-            compose.onNodeWithContentDescription(it).assert(SemanticsMatcher.expectValue(
-                SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo.Indeterminate))
+            compose.onNodeWithContentDescription(it).assert(
+                SemanticsMatcher.expectValue(
+                    SemanticsProperties.ProgressBarRangeInfo, ProgressBarRangeInfo.Indeterminate
+                )
+            )
         }
     }
 }
 
 class CompletionSpinnerZeroScaleTest {
-    @get:Rule val compose = createComposeRule(effectContext = object : MotionDurationScale {
+    @get:Rule
+    val compose = createComposeRule(effectContext = object : MotionDurationScale {
         override val scaleFactor = 0f
     })
 
@@ -246,22 +293,36 @@ class CompletionSpinnerZeroScaleTest {
         compose.setContent {
             MaterialTheme {
                 Row(Modifier.background(MaterialTheme.colorScheme.surface).testTag("capture")) {
-                    CompletionSpinner(complete = complete.value, label = "Standard loading", completeLabel = "Standard done")
-                    CompletionSpinner(complete = complete.value, style = CompletionSpinnerStyle.Wavy,
-                        label = "Wavy loading", completeLabel = "Wavy done")
+                    CompletionSpinner(
+                        complete = complete.value,
+                        label = "Standard loading",
+                        completeLabel = "Standard done"
+                    )
+                    CompletionSpinner(
+                        complete = complete.value, style = CompletionSpinnerStyle.Wavy,
+                        label = "Wavy loading", completeLabel = "Wavy done"
+                    )
                 }
             }
         }
         val initial = compose.onNodeWithTag("capture").captureToImage()
         compose.mainClock.advanceTimeBy(1200)
-        assertEquals(0, changedSpinnerPixels(initial,
-            compose.onNodeWithTag("capture").captureToImage()))
+        assertEquals(
+            0, changedSpinnerPixels(
+                initial,
+                compose.onNodeWithTag("capture").captureToImage()
+            )
+        )
         compose.runOnIdle { complete.value = true }
         compose.mainClock.advanceTimeByFrame()
         val completed = compose.onNodeWithTag("capture").captureToImage()
         compose.mainClock.advanceTimeBy(1200)
-        assertEquals(0, changedSpinnerPixels(completed,
-            compose.onNodeWithTag("capture").captureToImage()))
+        assertEquals(
+            0, changedSpinnerPixels(
+                completed,
+                compose.onNodeWithTag("capture").captureToImage()
+            )
+        )
         compose.onNodeWithContentDescription("Standard done").assertExists()
         compose.onNodeWithContentDescription("Wavy done").assertExists()
     }

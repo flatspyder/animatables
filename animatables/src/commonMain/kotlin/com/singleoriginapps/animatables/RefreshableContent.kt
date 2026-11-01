@@ -11,8 +11,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -61,7 +61,9 @@ public fun RefreshableContent(
                 ) { notice ->
                     when (notice) {
                         RefreshNotice.Loading -> Column(
-                            Modifier.fillMaxWidth().semantics { progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate },
+                            Modifier.fillMaxWidth().semantics {
+                                progressBarRangeInfo = ProgressBarRangeInfo.Indeterminate
+                            },
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Text(refreshingLabel, style = MaterialTheme.typography.bodyMedium)
@@ -69,8 +71,12 @@ public fun RefreshableContent(
                             if (rememberMotionEnabled()) LinearProgressIndicator(modifier = indicator)
                             else LinearProgressIndicator(progress = { .25f }, modifier = indicator)
                         }
-                        is RefreshNotice.Error -> RecoveryNotice(notice.message, retryLabel,
-                            if (!loading && error != null) onRetry else null)
+
+                        is RefreshNotice.Error -> RecoveryNotice(
+                            notice.message, retryLabel,
+                            if (!loading && error != null) onRetry else null
+                        )
+
                         null -> Unit
                     }
                 }
@@ -92,7 +98,11 @@ private sealed interface RefreshNotice {
 @Composable
 private fun RecoveryNotice(message: String, retryLabel: String, onRetry: (() -> Unit)?) {
     Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(message, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyMedium)
+        Text(
+            message,
+            color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium
+        )
         if (onRetry != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TextButton(onClick = onRetry) { Text(retryLabel) }

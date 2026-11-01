@@ -1,7 +1,5 @@
 package com.singleoriginapps.animatables.catalog
 
-import androidx.compose.material3.Icon
-import com.singleoriginapps.animatables.samples.MaterialSymbols
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,10 +8,11 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -30,23 +29,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.singleoriginapps.animatables.AnimatablesMotion
+import com.singleoriginapps.animatables.CompletionSpinner
+import com.singleoriginapps.animatables.CompletionSpinnerStyle
 import com.singleoriginapps.animatables.IconSwap
 import com.singleoriginapps.animatables.NumberFlowAnchor
 import com.singleoriginapps.animatables.NumberPopIn
 import com.singleoriginapps.animatables.ReasoningStream
 import com.singleoriginapps.animatables.ShimmerText
 import com.singleoriginapps.animatables.StreamingText
-import com.singleoriginapps.animatables.CompletionSpinner
-import com.singleoriginapps.animatables.CompletionSpinnerStyle
 import com.singleoriginapps.animatables.SuccessCheck
 import com.singleoriginapps.animatables.TextReveal
 import com.singleoriginapps.animatables.TextStateSwap
 import com.singleoriginapps.animatables.ThinkingStates
+import com.singleoriginapps.animatables.samples.MaterialSymbols
 import kotlinx.coroutines.delay
 
 @Composable
@@ -131,9 +129,11 @@ private fun IconDemo() {
 
 @Composable
 private fun DemoSymbol(close: Boolean) {
-    Icon(if (close) MaterialSymbols.Close else MaterialSymbols.Menu,
+    Icon(
+        if (close) MaterialSymbols.Close else MaterialSymbols.Menu,
         contentDescription = if (close) "Close" else "Menu",
-        modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
+        modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary
+    )
 }
 
 @Composable
@@ -292,10 +292,11 @@ private fun StreamDemo() {
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.TopStart) {
             // Only the catalog knows the complete fixture. Reserve its native paragraph height
             // so centring the demo cannot move settled lines upward whenever a new line wraps.
-            Text(demoResponse, Modifier
-                .fillMaxWidth()
-                .alpha(0f)
-                .clearAndSetSemantics {})
+            Text(
+                demoResponse, Modifier
+                    .fillMaxWidth()
+                    .alpha(0f)
+                    .clearAndSetSemantics {})
             StreamingText(
                 chunks.take(count).joinToString(""),
                 Modifier.fillMaxWidth(),
@@ -350,7 +351,12 @@ internal fun effectApiExample(id: String): String? = when (id) {
 }
 
 @Composable
-private fun SpinnerDemo(step: Int, wavy: Boolean, determinate: Boolean, customSuccessIcon: Boolean) {
+private fun SpinnerDemo(
+    step: Int,
+    wavy: Boolean,
+    determinate: Boolean,
+    customSuccessIcon: Boolean
+) {
     val completed = step % 2 != 0
     val progress = if (completed) 1f else .35f
     val complete = completed && !determinate
@@ -372,7 +378,12 @@ private fun SpinnerDemo(step: Int, wavy: Boolean, determinate: Boolean, customSu
     }
 }
 
-@Preview(name = "Completion spinner resting states", widthDp = 412, heightDp = 360, showBackground = true)
+@Preview(
+    name = "Completion spinner resting states",
+    widthDp = 412,
+    heightDp = 360,
+    showBackground = true
+)
 @Composable
 private fun CompletionSpinnerRestingPreview() {
     CatalogTheme {
@@ -384,7 +395,10 @@ private fun CompletionSpinnerRestingPreview() {
                     CompletionSpinner(progress = { .4f }, style = CompletionSpinnerStyle.Wavy)
                     CompletionSpinner(progress = { 1f })
                 }
-                Text("Indeterminate · animations disabled", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Indeterminate · animations disabled",
+                    style = MaterialTheme.typography.titleMedium
+                )
                 Row(horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                     CompletionSpinner()
                     CompletionSpinner(style = CompletionSpinnerStyle.Wavy)
