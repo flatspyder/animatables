@@ -1,4 +1,5 @@
 <resources>
+
     <style name="Theme.Animatables" parent="android:style/Theme.Material.Light.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>

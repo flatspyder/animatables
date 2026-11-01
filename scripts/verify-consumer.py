@@ -9,7 +9,8 @@ import tempfile
 def main():
     root = Path(__file__).resolve().parents[1]
     subprocess.run(
-        [str(root / "gradlew"), ":animatables:publishReleasePublicationToProjectLocalRepository", "--console=plain"],
+        [str(root / "gradlew"), ":animatables:publishKotlinMultiplatformPublicationToProjectLocalRepository",
+         ":animatables:publishAndroidPublicationToProjectLocalRepository", "--console=plain"],
         cwd=root, check=True,
     )
     with tempfile.TemporaryDirectory(prefix="animatables-consumer-") as directory:

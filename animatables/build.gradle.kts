@@ -1,53 +1,74 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.kmp.library)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.multiplatform)
     `maven-publish`
 }
 
 group = "com.singleoriginapps"
 version = "0.1.0-SNAPSHOT"
 
-android {
-    namespace = "com.singleoriginapps.animatables"
-    compileSdk { version = release(37) { minorApiLevel = 0 } }
-    defaultConfig {
+kotlin {
+    android {
+        namespace = "com.singleoriginapps.animatables"
+        compileSdk = 37
         minSdk = 24
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        androidResources { enable = true }
+        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+        withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+            execution = "HOST"
+        }
     }
-    buildFeatures { compose = true }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    publishing { singleVariant("release") { withSourcesJar() } }
-}
+    jvm { compilerOptions { jvmTarget.set(JvmTarget.JVM_17) } }
+    iosArm64()
+    iosSimulatorArm64()
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs { browser() }
 
-dependencies {
-    api(libs.compose.ui)
-    api(libs.compose.foundation)
-    api(libs.compose.animation)
-    api(libs.material3)
-    androidTestImplementation(libs.compose.test)
-    androidTestImplementation(libs.test.runner)
-    androidTestImplementation(libs.test.junit)
-    // Compose's older transitive Espresso uses a hidden input API removed on Android 17.
-    androidTestImplementation(libs.test.espresso)
-    debugImplementation(libs.compose.test.manifest)
+    applyDefaultHierarchyTemplate()
+
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.multiplatform.ui)
+            api(libs.multiplatform.foundation)
+            api(libs.multiplatform.animation)
+            api(libs.multiplatform.material3)
+        }
+        commonTest.dependencies { implementation(kotlin("test")) }
+        androidMain.dependencies {
+            // Android consumers retain the newer Jetpack Material implementation.
+            api(libs.material3)
+        }
+        val skiaMain = create("skiaMain") { dependsOn(commonMain.get()) }
+        jvmMain.get().dependsOn(skiaMain)
+        iosMain.get().dependsOn(skiaMain)
+        wasmJsMain.get().dependsOn(skiaMain)
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.compose.test)
+            implementation(libs.compose.test.manifest)
+            implementation(libs.test.runner)
+            implementation(libs.test.junit)
+            implementation(libs.test.espresso)
+        }
+    }
 }
 
 publishing {
     repositories {
-        // A shareable local repository without requiring credentials or a global install.
-        maven { name = "projectLocal"; url = rootProject.layout.buildDirectory.dir("repo").get().asFile.toURI() }
+        maven {
+            name = "projectLocal"; url =
+            rootProject.layout.buildDirectory.dir("repo").get().asFile.toURI()
+        }
     }
-}
-afterEvaluate {
-    publishing.publications.create<MavenPublication>("release") {
-        from(components["release"])
-        artifactId = "animatables"
+    publications.withType<MavenPublication>().configureEach {
         pom {
             name.set("Animatables")
-            description.set("Considered Material 3 Expressive motion for Jetpack Compose")
+            description.set("Considered Material 3 Expressive motion for Compose Multiplatform")
             url.set("https://github.com/flatspyder/animatables")
             licenses { license { name.set("The Apache License, Version 2.0"); url.set("https://www.apache.org/licenses/LICENSE-2.0.txt") } }
             developers { developer { id.set("flatspyder"); name.set("Single Origin Apps") } }

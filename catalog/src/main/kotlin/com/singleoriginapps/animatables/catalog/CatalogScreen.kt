@@ -1,23 +1,52 @@
 package com.singleoriginapps.animatables.catalog
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -25,37 +54,146 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.tooling.preview.Preview
-import com.singleoriginapps.animatables.*
+import com.singleoriginapps.animatables.AnimatablesMotion
+import com.singleoriginapps.animatables.AnimatedCountBadge
+import com.singleoriginapps.animatables.AnimatedStatusText
+import com.singleoriginapps.animatables.CompletionIndicator
+import com.singleoriginapps.animatables.ExpandableCard
+import com.singleoriginapps.animatables.LoadingContent
+import com.singleoriginapps.animatables.MotionContent
 import kotlinx.coroutines.delay
 
-private enum class Collection(val title: String) { All("All"), Text("Text"), Feedback("Feedback"), Activity("Activity"), Layout("Layout"), Loading("Loading"), Native("M3 recipes") }
-private data class Demo(val id: String, val title: String, val note: String, val group: Collection, val api: String)
+private enum class Collection(val title: String) {
+    All("All"), Text("Text"), Feedback("Feedback"), Activity(
+        "Activity"
+    ),
+    Layout("Layout"), Loading("Loading"), Native("M3 recipes")
+}
+
+private data class Demo(
+    val id: String,
+    val title: String,
+    val note: String,
+    val group: Collection,
+    val api: String
+)
+
 private val demos = listOf(
-    Demo("number", "Number pop-in", "Changed digits roll in stable place-value columns.", Collection.Text, "NumberPopIn"),
-    Demo("text-swap", "Text states swap", "An outgoing blur hands over to a rising new label.", Collection.Text, "TextStateSwap"),
-    Demo("icon", "Icon swap", "Two icons scale and resolve around a shared centre.", Collection.Feedback, "IconSwap"),
-    Demo("success", "Success check", "A rising fade and focus resolve, followed by a drawn check.", Collection.Feedback, "SuccessCheck"),
-    Demo("reveal", "Texts reveal", "Lines arrive in a staggered upward sweep.", Collection.Text, "TextReveal"),
-    Demo("shimmer", "Shimmer text", "A narrow highlight travels through the letterforms.", Collection.Text, "ShimmerText"),
-    Demo("thinking", "Thinking states", "Shimmering activity labels change with the task.", Collection.Activity, "ThinkingStates"),
-    Demo("reasoning", "Reasoning stream", "Recent activity moves through a fading viewport.", Collection.Activity, "ReasoningStream"),
-    Demo("streaming", "Streaming text", "New words resolve while earlier words stay still.", Collection.Activity, "StreamingText"),
-    Demo("01", "Room to unfold", "Expansion that keeps its place.", Collection.Layout, "ExpandableCard"),
-    Demo("03", "Little things add up", "A badge that keeps the count readable.", Collection.Feedback, "AnimatedCountBadge"),
-    Demo("04", "Worth the wait", "A structural placeholder, then the content.", Collection.Loading, "LoadingContent"),
-    Demo("06", "One place, new content", "Related states share a single surface.", Collection.Layout, "MotionContent"),
-    Demo("07", "Already expressive", "Use Material's selection controls directly.", Collection.Native, "Checkbox · Switch"),
-    Demo("08", "From the right place", "An anchored menu with native behaviour.", Collection.Native, "DropdownMenu"),
+    Demo(
+        "number",
+        "Number pop-in",
+        "Changed digits roll in stable place-value columns.",
+        Collection.Text,
+        "NumberPopIn"
+    ),
+    Demo(
+        "text-swap",
+        "Text states swap",
+        "An outgoing blur hands over to a rising new label.",
+        Collection.Text,
+        "TextStateSwap"
+    ),
+    Demo(
+        "icon",
+        "Icon swap",
+        "Two icons scale and resolve around a shared centre.",
+        Collection.Feedback,
+        "IconSwap"
+    ),
+    Demo(
+        "success",
+        "Success check",
+        "A rising fade and focus resolve, followed by a drawn check.",
+        Collection.Feedback,
+        "SuccessCheck"
+    ),
+    Demo(
+        "reveal",
+        "Texts reveal",
+        "Lines arrive in a staggered upward sweep.",
+        Collection.Text,
+        "TextReveal"
+    ),
+    Demo(
+        "shimmer",
+        "Shimmer text",
+        "A narrow highlight travels through the letterforms.",
+        Collection.Text,
+        "ShimmerText"
+    ),
+    Demo(
+        "thinking",
+        "Thinking states",
+        "Shimmering activity labels change with the task.",
+        Collection.Activity,
+        "ThinkingStates"
+    ),
+    Demo(
+        "reasoning",
+        "Reasoning stream",
+        "Recent activity moves through a fading viewport.",
+        Collection.Activity,
+        "ReasoningStream"
+    ),
+    Demo(
+        "streaming",
+        "Streaming text",
+        "New words resolve while earlier words stay still.",
+        Collection.Activity,
+        "StreamingText"
+    ),
+    Demo(
+        "01",
+        "Room to unfold",
+        "Expansion that keeps its place.",
+        Collection.Layout,
+        "ExpandableCard"
+    ),
+    Demo(
+        "03",
+        "Little things add up",
+        "A badge that keeps the count readable.",
+        Collection.Feedback,
+        "AnimatedCountBadge"
+    ),
+    Demo(
+        "04",
+        "Worth the wait",
+        "A structural placeholder, then the content.",
+        Collection.Loading,
+        "LoadingContent"
+    ),
+    Demo(
+        "06",
+        "One place, new content",
+        "Related states share a single surface.",
+        Collection.Layout,
+        "MotionContent"
+    ),
+    Demo(
+        "07",
+        "Already expressive",
+        "Use Material's selection controls directly.",
+        Collection.Native,
+        "Checkbox · Switch"
+    ),
+    Demo(
+        "08",
+        "From the right place",
+        "An anchored menu with native behaviour.",
+        Collection.Native,
+        "DropdownMenu"
+    ),
 )
 
 @Composable
@@ -70,16 +208,33 @@ fun AnimatablesCatalog(initialEffect: String? = null) {
             val selected = demos.find { it.id == inspected }
             if (selected != null) {
                 BackHandler { inspected = null }
-                EffectInspector(selected, motion, { motion = it }, dark, { dark = it }, onClose = { inspected = null })
+                EffectInspector(
+                    selected,
+                    motion,
+                    { motion = it },
+                    dark,
+                    { dark = it },
+                    onClose = { inspected = null })
             } else {
-                CatalogScreen(dark, { dark = it }, motion, { motion = it }, onInspect = { inspected = it })
+                CatalogScreen(
+                    dark,
+                    { dark = it },
+                    motion,
+                    { motion = it },
+                    onInspect = { inspected = it })
             }
         }
     }
 }
 
 @Composable
-private fun CatalogScreen(dark: Boolean, onDarkChange: (Boolean) -> Unit, motion: Boolean, onMotionChange: (Boolean) -> Unit, onInspect: (String) -> Unit = {}) {
+private fun CatalogScreen(
+    dark: Boolean,
+    onDarkChange: (Boolean) -> Unit,
+    motion: Boolean,
+    onMotionChange: (Boolean) -> Unit,
+    onInspect: (String) -> Unit = {}
+) {
     var filter by rememberSaveable { mutableStateOf(Collection.All) }
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         LazyVerticalGrid(
@@ -94,41 +249,95 @@ private fun CatalogScreen(dark: Boolean, onDarkChange: (Boolean) -> Unit, motion
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                         OriginMark(Modifier.size(28.dp))
                         Spacer(Modifier.width(10.dp))
-                        Text("SINGLE ORIGIN", style = MaterialTheme.typography.labelLarge, letterSpacing = 2.sp, modifier = Modifier.weight(1f))
+                        Text(
+                            "SINGLE ORIGIN",
+                            style = MaterialTheme.typography.labelLarge,
+                            letterSpacing = 2.sp,
+                            modifier = Modifier.weight(1f)
+                        )
                         TextButton(onClick = { onDarkChange(!dark) }) { Text(if (dark) "Light theme" else "Dark theme") }
                     }
                     Spacer(Modifier.height(14.dp))
-                    Text("THE COMPOSE MOTION LIBRARY", style = MaterialTheme.typography.labelSmall, letterSpacing = 1.6.sp, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        "THE COMPOSE MOTION LIBRARY",
+                        style = MaterialTheme.typography.labelSmall,
+                        letterSpacing = 1.6.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                     Spacer(Modifier.height(12.dp))
-                    Text("Motion, made tangible.", style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.SemiBold, letterSpacing = (-1.5).sp), modifier = Modifier.semantics { heading() })
+                    Text(
+                        "Motion, made tangible.",
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = (-1.5).sp
+                        ),
+                        modifier = Modifier.semantics { heading() })
                     Spacer(Modifier.height(12.dp))
-                    Text("Play, interrupt and replay each transition.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        "Play, interrupt and replay each transition.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                     Spacer(Modifier.height(14.dp))
-                    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(24.dp)).padding(horizontal = 20.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .background(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                RoundedCornerShape(24.dp)
+                            )
+                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Column(Modifier.weight(1f)) {
-                            Text(if (motion) "Library animations on" else "Library animations off", style = MaterialTheme.typography.titleMedium)
+                            Text(
+                                if (motion) "Library animations on" else "Library animations off",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                             SystemMotionLabel()
                         }
-                        Switch(checked = motion, onCheckedChange = onMotionChange, modifier = Modifier.semantics { contentDescription = "Library motion" })
+                        Switch(
+                            checked = motion,
+                            onCheckedChange = onMotionChange,
+                            modifier = Modifier.semantics { contentDescription = "Library motion" })
                     }
                     Spacer(Modifier.height(14.dp))
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("The collection", style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-                        Text("${demos.count { it.group != Collection.Native }} motion demos / 02 recipes", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            "The collection",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.semantics { heading() })
+                        Text(
+                            "${demos.count { it.group != Collection.Native }} motion demos / 02 recipes",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(top = 10.dp)) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        contentPadding = PaddingValues(top = 10.dp)
+                    ) {
                         items(Collection.entries.size) { i ->
                             val item = Collection.entries[i]
-                            FilterChip(selected = filter == item, onClick = { filter = item }, label = { Text(item.title) })
+                            FilterChip(
+                                selected = filter == item,
+                                onClick = { filter = item },
+                                label = { Text(item.title) })
                         }
                     }
                 }
             }
-            items(demos.filter { filter == Collection.All || it.group == filter }, key = { it.id }) { demo -> DemoCard(demo, onInspect) }
+            items(
+                demos.filter { filter == Collection.All || it.group == filter },
+                key = { it.id }) { demo -> DemoCard(demo, onInspect) }
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Column(Modifier.padding(vertical = 16.dp)) {
                     Text("Motion with purpose.", style = MaterialTheme.typography.titleMedium)
-                    Text("Theme tokens · Hoisted state · System animation scale\nPrototype 0.1 · singleoriginapps.com", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        "Theme tokens · Hoisted state · System animation scale\nPrototype 0.1 · singleoriginapps.com",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
@@ -139,7 +348,12 @@ private fun CatalogScreen(dark: Boolean, onDarkChange: (Boolean) -> Unit, motion
 private fun OriginMark(modifier: Modifier = Modifier) {
     val color = MaterialTheme.colorScheme.primary
     Canvas(modifier) {
-        rotate(45f) { drawRoundRect(color, cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.width * .28f)) }
+        rotate(45f) {
+            drawRoundRect(
+                color,
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.width * .28f)
+            )
+        }
         drawCircle(Color.White, size.minDimension * .12f, Offset(size.width / 2, size.height / 2))
     }
 }
@@ -147,24 +361,65 @@ private fun OriginMark(modifier: Modifier = Modifier) {
 @Composable
 private fun DemoCard(demo: Demo, onInspect: (String) -> Unit) {
     var showApi by rememberSaveable { mutableStateOf(false) }
-    Surface(shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.surfaceContainerLowest) {
+    Surface(
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerLowest
+    ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(demo.id, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
-                Text(demo.group.title.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, letterSpacing = 1.sp)
+                Text(
+                    demo.id,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    demo.group.title.uppercase(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    letterSpacing = 1.sp
+                )
             }
-            Box(Modifier.fillMaxWidth().heightIn(min = 156.dp).background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(20.dp)).padding(16.dp), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 156.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainerLow,
+                        RoundedCornerShape(20.dp)
+                    )
+                    .padding(16.dp), contentAlignment = Alignment.Center
+            ) {
                 DemoContent(demo.id)
             }
             Text(demo.title, style = MaterialTheme.typography.titleLarge)
-            Text(demo.note, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                demo.note,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                TextButton(onClick = { onInspect(demo.id) }, modifier = Modifier.weight(1f)) { Text("Inspect motion") }
-                TextButton(onClick = { showApi = !showApi }) { Text(if (showApi) "Hide API" else "View API") }
+                TextButton(onClick = { onInspect(demo.id) }, modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Inspect motion"
+                    )
+                }
+                TextButton(onClick = {
+                    showApi = !showApi
+                }) { Text(if (showApi) "Hide API" else "View API") }
             }
             if (showApi) {
-                Text(demo.api, fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-                Text(effectApiExample(demo.id) ?: apiExample(demo.id), fontFamily = FontFamily.Monospace, style = MaterialTheme.typography.bodySmall)
+                Text(
+                    demo.api,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    effectApiExample(demo.id) ?: apiExample(demo.id),
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
@@ -184,41 +439,96 @@ private fun DemoContent(id: String) {
 }
 
 @Composable
-private fun EffectInspector(demo: Demo, motion: Boolean, onMotionChange: (Boolean) -> Unit, dark: Boolean, onDarkChange: (Boolean) -> Unit, onClose: () -> Unit) {
+private fun EffectInspector(
+    demo: Demo,
+    motion: Boolean,
+    onMotionChange: (Boolean) -> Unit,
+    dark: Boolean,
+    onDarkChange: (Boolean) -> Unit,
+    onClose: () -> Unit
+) {
     var centreGuide by rememberSaveable(demo.id) { mutableStateOf(false) }
     val guideColor = MaterialTheme.colorScheme.outline.copy(alpha = .45f)
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         Column(
-            Modifier.safeDrawingPadding().verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(24.dp),
+            Modifier
+                .safeDrawingPadding()
+                .verticalScroll(androidx.compose.foundation.rememberScrollState())
+                .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             TextButton(onClick = onClose) { Text("‹  Back to collection") }
-            Text(demo.title, style = MaterialTheme.typography.headlineLarge, modifier = Modifier.semantics { heading() })
-            Text(demo.note, style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Switch(motion, onMotionChange, modifier = Modifier.semantics { contentDescription = "Library motion" })
+            Text(
+                demo.title,
+                style = MaterialTheme.typography.headlineLarge,
+                modifier = Modifier.semantics { heading() })
+            Text(
+                demo.note,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Switch(
+                    motion,
+                    onMotionChange,
+                    modifier = Modifier.semantics { contentDescription = "Library motion" })
                 Column {
-                    Text(if (motion) "Library motion on" else "Library motion off", style = MaterialTheme.typography.labelLarge)
+                    Text(
+                        if (motion) "Library motion on" else "Library motion off",
+                        style = MaterialTheme.typography.labelLarge
+                    )
                     SystemMotionLabel()
                 }
             }
             if (rememberSystemAnimationScale() == 0f) {
-                Text("Android's animation duration scale is zero. Enable animations in Android settings to see movement; replay still updates the final state.", color = MaterialTheme.colorScheme.error)
+                Text(
+                    "Android's animation duration scale is zero. Enable animations in Android settings to see movement; replay still updates the final state.",
+                    color = MaterialTheme.colorScheme.error
+                )
             }
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                FilterChip(selected = centreGuide, onClick = { centreGuide = !centreGuide }, label = { Text("Centre guide") })
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                FilterChip(
+                    selected = centreGuide,
+                    onClick = { centreGuide = !centreGuide },
+                    label = { Text("Centre guide") })
                 TextButton(onClick = { onDarkChange(!dark) }) { Text(if (dark) "Light theme" else "Dark theme") }
             }
             Box(
-                Modifier.fillMaxWidth().heightIn(min = 260.dp).background(MaterialTheme.colorScheme.surfaceContainerLow, RoundedCornerShape(28.dp))
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 260.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainerLow,
+                        RoundedCornerShape(28.dp)
+                    )
                     .drawBehind {
-                        if (centreGuide) drawLine(guideColor, Offset(size.width / 2f, 0f), Offset(size.width / 2f, size.height), 1.dp.toPx())
-                    }.padding(24.dp),
+                        if (centreGuide) drawLine(
+                            guideColor,
+                            Offset(size.width / 2f, 0f),
+                            Offset(size.width / 2f, size.height),
+                            1.dp.toPx()
+                        )
+                    }
+                    .padding(24.dp),
                 contentAlignment = Alignment.Center,
             ) { DemoContent(demo.id) }
             Text("Use in Compose", style = MaterialTheme.typography.titleMedium)
-            Text(effectApiExample(demo.id) ?: apiExample(demo.id), style = MaterialTheme.typography.bodyMedium, fontFamily = FontFamily.Monospace)
-            Text("Replay a settled effect or interrupt it with another tap. Android's animation setting and the app motion preference remain in control.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                effectApiExample(demo.id) ?: apiExample(demo.id),
+                style = MaterialTheme.typography.bodyMedium,
+                fontFamily = FontFamily.Monospace
+            )
+            Text(
+                "Replay a settled effect or interrupt it with another tap. Android's animation setting and the app motion preference remain in control.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -238,15 +548,27 @@ private fun apiExample(id: String) = when (id) {
 private fun ExpansionDemo() {
     var expanded by rememberSaveable { mutableStateOf(false) }
     ExpandableCard(expanded, { expanded = it }, "A weekend away", Modifier.fillMaxWidth()) {
-        Text("Slow mornings. New places.\nA little room for possibility.", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            "Slow mornings. New places.\nA little room for possibility.",
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
 @Composable
 private fun StatusDemo() {
     var state by rememberSaveable { mutableIntStateOf(0) }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        AnimatedStatusText(listOf("Ready when you are", "Finding your rhythm", "Everything in its place")[state])
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        AnimatedStatusText(
+            listOf(
+                "Ready when you are",
+                "Finding your rhythm",
+                "Everything in its place"
+            )[state]
+        )
         FilledTonalButton(onClick = { state = (state + 1) % 3 }) { Text("Change status") }
     }
 }
@@ -254,13 +576,23 @@ private fun StatusDemo() {
 @Composable
 private fun BadgeDemo() {
     var count by rememberSaveable { mutableIntStateOf(3) }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
             Text("Your inbox", style = MaterialTheme.typography.titleLarge)
             AnimatedCountBadge(count)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = { count = (count - 1).coerceAtLeast(0) }) { Text("−", modifier = Modifier.semantics { contentDescription = "Remove notification" }) }
+            OutlinedButton(onClick = { count = (count - 1).coerceAtLeast(0) }) {
+                Text(
+                    "−",
+                    modifier = Modifier.semantics { contentDescription = "Remove notification" })
+            }
             FilledTonalButton(onClick = { count++ }) { Text("+ Add") }
         }
     }
@@ -269,25 +601,62 @@ private fun BadgeDemo() {
 @Composable
 private fun LoadingDemo() {
     var loading by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(loading) { if (loading) { delay(1800); loading = false } }
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+    LaunchedEffect(loading) {
+        if (loading) {
+            delay(1800); loading = false
+        }
+    }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         LoadingContent(loading = loading, placeholder = { ProfileSkeleton() }) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(Modifier.size(44.dp).background(MaterialTheme.colorScheme.secondaryContainer, CircleShape), contentAlignment = Alignment.Center) { Text("SO", style = MaterialTheme.typography.labelLarge) }
-                Column { Text("Something good", style = MaterialTheme.typography.titleMedium); Text("Made at your own pace", style = MaterialTheme.typography.bodySmall) }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Box(
+                    Modifier
+                        .size(44.dp)
+                        .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape),
+                    contentAlignment = Alignment.Center
+                ) { Text("SO", style = MaterialTheme.typography.labelLarge) }
+                Column {
+                    Text("Something good", style = MaterialTheme.typography.titleMedium); Text(
+                    "Made at your own pace",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                }
             }
         }
-        FilledTonalButton(onClick = { loading = !loading }) { Text(if (loading) "Show content" else "Replay loading") }
+        FilledTonalButton(onClick = {
+            loading = !loading
+        }) { Text(if (loading) "Show content" else "Replay loading") }
     }
 }
 
 @Composable
 private fun ProfileSkeleton() {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Box(Modifier.size(44.dp).background(MaterialTheme.colorScheme.outlineVariant, CircleShape))
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Box(Modifier
+            .size(44.dp)
+            .background(MaterialTheme.colorScheme.outlineVariant, CircleShape))
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Box(Modifier.width(148.dp).height(16.dp).background(MaterialTheme.colorScheme.outlineVariant, CircleShape))
-            Box(Modifier.width(124.dp).height(12.dp).background(MaterialTheme.colorScheme.outlineVariant, CircleShape))
+            Box(
+                Modifier
+                    .width(148.dp)
+                    .height(16.dp)
+                    .background(MaterialTheme.colorScheme.outlineVariant, CircleShape)
+            )
+            Box(
+                Modifier
+                    .width(124.dp)
+                    .height(12.dp)
+                    .background(MaterialTheme.colorScheme.outlineVariant, CircleShape)
+            )
         }
     }
 }
@@ -295,23 +664,47 @@ private fun ProfileSkeleton() {
 @Composable
 private fun CompletionDemo() {
     var complete by rememberSaveable { mutableStateOf(false) }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        CompletionIndicator(complete, Modifier.size(52.dp), label = "Saved", pendingLabel = "Ready to save")
-        FilledTonalButton(onClick = { complete = !complete }) { Text(if (complete) "Reset" else "Save changes") }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        CompletionIndicator(
+            complete,
+            Modifier.size(52.dp),
+            label = "Saved",
+            pendingLabel = "Ready to save"
+        )
+        FilledTonalButton(onClick = {
+            complete = !complete
+        }) { Text(if (complete) "Reset" else "Save changes") }
     }
 }
 
 @Composable
 private fun ContentDemo() {
     var selected by rememberSaveable { mutableStateOf(false) }
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         MotionContent(selected) { detail ->
-            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(if (detail) "A quieter kind of focus" else "Find your focus", style = MaterialTheme.typography.titleMedium)
-                if (detail) Text("Make a little space for your next idea.", style = MaterialTheme.typography.bodySmall)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    if (detail) "A quieter kind of focus" else "Find your focus",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                if (detail) Text(
+                    "Make a little space for your next idea.",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
-        FilledTonalButton(onClick = { selected = !selected }) { Text(if (selected) "Less detail" else "More detail") }
+        FilledTonalButton(onClick = {
+            selected = !selected
+        }) { Text(if (selected) "Less detail" else "More detail") }
     }
 }
 
@@ -320,11 +713,27 @@ private fun SelectionDemo() {
     var checked by rememberSaveable { mutableStateOf(true) }
     Column {
         Row(
-            Modifier.fillMaxWidth().toggleable(value = checked, role = Role.Checkbox, onValueChange = { checked = it }).heightIn(min = 48.dp),
+            Modifier
+                .fillMaxWidth()
+                .toggleable(value = checked, role = Role.Checkbox, onValueChange = { checked = it })
+                .heightIn(min = 48.dp),
             verticalAlignment = Alignment.CenterVertically,
-        ) { Checkbox(checked, onCheckedChange = null); Spacer(Modifier.width(12.dp)); Text("Keep me in the loop") }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Switch(checked, { checked = it }, modifier = Modifier.semantics { contentDescription = "Keep me in the loop" }); Text(if (checked) "On" else "Off")
+        ) {
+            Checkbox(
+                checked,
+                onCheckedChange = null
+            ); Spacer(Modifier.width(12.dp)); Text("Keep me in the loop")
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Switch(
+                checked,
+                { checked = it },
+                modifier = Modifier.semantics { contentDescription = "Keep me in the loop" }); Text(
+            if (checked) "On" else "Off"
+        )
         }
     }
 }
@@ -337,7 +746,9 @@ private fun MenuDemo() {
         FilledTonalButton(onClick = { open = true }) { Text(selection) }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             listOf("Take it slow", "Find a rhythm", "Make a move").forEach { item ->
-                DropdownMenuItem(text = { Text(item) }, onClick = { selection = item; open = false })
+                DropdownMenuItem(
+                    text = { Text(item) },
+                    onClick = { selection = item; open = false })
             }
         }
     }
@@ -345,19 +756,33 @@ private fun MenuDemo() {
 
 @Preview(name = "Phone · Light", widthDp = 412, heightDp = 915, showBackground = true)
 @Composable
-private fun CatalogLightPreview() { CatalogTheme { AnimatablesMotion(false) { CatalogScreen(false, {}, true, {}) } } }
+private fun CatalogLightPreview() {
+    CatalogTheme { AnimatablesMotion(false) { CatalogScreen(false, {}, true, {}) } }
+}
 
 @Preview(name = "Phone · Dark", widthDp = 412, heightDp = 915, showBackground = true)
 @Composable
-private fun CatalogDarkPreview() { CatalogTheme(true) { AnimatablesMotion(false) { CatalogScreen(true, {}, true, {}) } } }
+private fun CatalogDarkPreview() {
+    CatalogTheme(true) { AnimatablesMotion(false) { CatalogScreen(true, {}, true, {}) } }
+}
 
 @Preview(name = "Tablet", widthDp = 1000, heightDp = 1000, showBackground = true)
 @Composable
-private fun CatalogTabletPreview() { CatalogTheme { AnimatablesMotion(false) { CatalogScreen(false, {}, true, {}) } } }
+private fun CatalogTabletPreview() {
+    CatalogTheme { AnimatablesMotion(false) { CatalogScreen(false, {}, true, {}) } }
+}
 
-@Preview(name = "Large text", widthDp = 412, heightDp = 915, fontScale = 1.5f, showBackground = true)
+@Preview(
+    name = "Large text",
+    widthDp = 412,
+    heightDp = 915,
+    fontScale = 1.5f,
+    showBackground = true
+)
 @Composable
-private fun CatalogLargeTextPreview() { CatalogTheme { AnimatablesMotion(false) { CatalogScreen(false, {}, false, {}) } } }
+private fun CatalogLargeTextPreview() {
+    CatalogTheme { AnimatablesMotion(false) { CatalogScreen(false, {}, false, {}) } }
+}
 
 @Preview(name = "RTL", widthDp = 412, heightDp = 915, locale = "ar", showBackground = true)
 @Composable
@@ -375,12 +800,30 @@ private fun RestingStatesPreview() {
             Surface {
                 Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(24.dp)) {
                     Text("Ready at rest.", style = MaterialTheme.typography.headlineLarge)
-                    ExpandableCard(true, {}, "An expanded card") { Text("This content remains readable with animations disabled.") }
+                    ExpandableCard(
+                        true,
+                        {},
+                        "An expanded card"
+                    ) { Text("This content remains readable with animations disabled.") }
                     AnimatedStatusText("All changes saved")
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) { AnimatedCountBadge(0); AnimatedCountBadge(3); AnimatedCountBadge(123) }
-                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) { CompletionIndicator(true, Modifier.size(48.dp)); CompletionIndicator(false, Modifier.size(48.dp)) }
-                    LoadingContent(false, placeholder = { ProfileSkeleton() }) { Text("Content has arrived") }
-                    Text("Structural loading placeholder", style = MaterialTheme.typography.labelMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        AnimatedCountBadge(0); AnimatedCountBadge(
+                        3
+                    ); AnimatedCountBadge(123)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(20.dp)) {
+                        CompletionIndicator(
+                            true,
+                            Modifier.size(48.dp)
+                        ); CompletionIndicator(false, Modifier.size(48.dp))
+                    }
+                    LoadingContent(
+                        false,
+                        placeholder = { ProfileSkeleton() }) { Text("Content has arrived") }
+                    Text(
+                        "Structural loading placeholder",
+                        style = MaterialTheme.typography.labelMedium
+                    )
                     ProfileSkeleton()
                     MotionContent(true) { Text("Related content") }
                 }

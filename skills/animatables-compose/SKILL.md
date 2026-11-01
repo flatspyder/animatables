@@ -1,11 +1,11 @@
 ---
 name: animatables-compose
-description: Integrate Animatables components into Jetpack Compose screens, choosing restrained Material 3 Expressive motion, hoisted state, and accessible resting states. Use when a project already uses or explicitly requests Animatables; do not select it for unrelated animation libraries or pointer-only effects.
+description: Integrate Animatables components into Android and Compose Multiplatform screens, choosing restrained Material 3 Expressive motion, hoisted state, and accessible resting states. Use when a project already uses or explicitly requests Animatables; do not select it for unrelated animation libraries or pointer-only effects.
 ---
 
 # Animatables Compose
 
-Use Animatables to clarify a mobile interaction or state change. Preserve the consuming app's Material theme and ownership of business state.
+Use Animatables to clarify an interaction or state change. Components live in `commonMain`, with Android, JVM desktop, iOS arm64/simulator and Kotlin/Wasm targets. Android retains its ICU and API 31+ blur adapters; other platforms use native Unicode segmentation and Skia blur. Web and iOS observe reduced-motion preferences automatically. Desktop hosts provide an OS/app preference using `AnimatablesMotion`. If browser grapheme segmentation is unavailable, formatted values remain intact as readable literals. See the repository README's platform support section for target requirements. Preserve the consuming app's Material theme and ownership of business state.
 
 Read [references/integration.md](references/integration.md) for dependency setup, API selection, and a working example. Confirm the installed version and its signatures in source or generated API docs before changing code; this skill ships with the initial snapshot and is not a promise of future API compatibility.
 

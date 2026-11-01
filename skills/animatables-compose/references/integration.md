@@ -1,4 +1,4 @@
-# Initial snapshot integration
+# Integration
 
 This reference accompanies `com.singleoriginapps:animatables:0.1.0-SNAPSHOT`. It is a development snapshot, not a released Maven Central coordinate.
 
@@ -7,7 +7,7 @@ This reference accompanies `com.singleoriginapps:animatables:0.1.0-SNAPSHOT`. It
 Inside the library checkout, build the project-local Maven repository:
 
 ```sh
-./gradlew :animatables:publishReleasePublicationToProjectLocalRepository
+./gradlew :animatables:publishAllPublicationsToProjectLocalRepository
 ```
 
 In a consuming app's `settings.gradle.kts`, add that specific directory to the existing repositories block. Replace the example absolute path with the real checkout path. Keep `google()` and `mavenCentral()` for transitive AndroidX dependencies.
@@ -33,7 +33,7 @@ implementation("com.singleoriginapps:animatables:0.1.0-SNAPSHOT")
 
 The snapshot uses Compose 1.12.1 and Material 3 1.5.0-beta02 with minimum Android API 24 and compile SDK 37.0. Its own build uses Java 17 bytecode. Material 3 is deliberately a beta dependency to access the requested Expressive APIs; this is a compatibility constraint for consumers. Resolve dependency version conflicts in the host app deliberately rather than forcing an older Material artifact. The library checkout's version catalog is authoritative for the exact snapshot being consumed.
 
-The owner's current workflows may alternatively use a Gradle project dependency. Do not add `mavenLocal()` globally or publish artifacts as a side effect of a UI edit. Public hosting remains a separate release task.
+In a multi-module checkout, a Gradle project dependency can reference `:animatables` directly. Keep repository configuration scoped to the consuming build.
 
 ## Component map
 
@@ -161,3 +161,18 @@ Appended batches join the existing queue; settled words do not restart and exten
 `ReasoningStream.active = false` removes motion while still accepting updated entries. To pause updates, freeze the host's displayed snapshot and provide an expanded transcript view. Pass user-visible activity such as "Searching saved documents" rather than fabricated internal reasoning. Neither stream component owns a timer or network request.
 
 For any effect with `replayKey`, keep the key stable through ordinary recomposition. Change it for a new event or an explicit Replay action. System duration scale zero and `AnimatablesMotion(false)` eliminate animation and choreography delays. Verify actual playback and the rendered disabled state: semantic text alone can remain present while a rendering defect makes glyphs invisible. Frame inspection should establish sequential fades, steady prefixes through append, stable number anchors, and sharp expanded activity content. Record pending checks honestly rather than treating these descriptions as evidence of passing tests.
+
+
+## Compose Multiplatform consumers
+
+Use the same root coordinate in a KMP host; Gradle resolves Android, JVM, iOS or Wasm metadata:
+
+```kotlin
+kotlin {
+    sourceSets.commonMain.dependencies {
+        implementation("com.singleoriginapps:animatables:0.1.0-SNAPSHOT")
+    }
+}
+```
+
+Public component signatures and package names match Android. Keep an Expressive Material theme at the host boundary. The shared Material 3 API currently uses JetBrains 1.12.0-alpha03; Android selects Jetpack Material 3 1.5.0-beta02. Do not use Android-only Material APIs from common code. iOS and web reductions are observed automatically; desktop hosts must bridge their own motion preference with `AnimatablesMotion(enabled = ...)`. Motion opt-outs always retain the requested target state. Blur is an accent; platform fonts and Unicode versions can differ, so verify layout and semantics on each platform being shipped.

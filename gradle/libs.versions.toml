@@ -1,11 +1,17 @@
 [versions]
 agp = "9.5.0"
-kotlin = "2.4.10"
+kotlin = "2.4.21"
 compose = "1.12.1"
 material3 = "1.5.0-beta02"
+multiplatform = "1.12.2"
+multiplatformMaterial3 = "1.12.0-alpha03"
 activity = "1.13.0"
 
 [libraries]
+multiplatform-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "multiplatform" }
+multiplatform-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "multiplatform" }
+multiplatform-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "multiplatform" }
+multiplatform-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "multiplatformMaterial3" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
@@ -23,3 +29,7 @@ test-espresso = { module = "androidx.test.espresso:espresso-core", version = "3.
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "multiplatform" }

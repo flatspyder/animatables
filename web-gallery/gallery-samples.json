@@ -1,0 +1,122 @@
+[
+  {
+    "id": "NumberPopIn",
+    "group": "Numbers",
+    "action": "Change value",
+    "code": "NumberPopIn(value = \"$1,250.50\")",
+    "tone": "peach",
+    "replay": true
+  },
+  {
+    "id": "TextStateSwap",
+    "group": "Text",
+    "action": "Change label",
+    "code": "TextStateSwap(text = status)",
+    "tone": "lilac",
+    "replay": true
+  },
+  {
+    "id": "IconSwap",
+    "group": "Feedback",
+    "action": "Swap icon",
+    "code": "IconSwap(targetState = saved) { isSaved ->\n    Icon(if (isSaved) savedIcon else saveIcon,\n        contentDescription = \"Save\")\n}",
+    "tone": "green",
+    "replay": true
+  },
+  {
+    "id": "SuccessCheck",
+    "group": "Feedback",
+    "action": "Toggle completion",
+    "code": "SuccessCheck(complete = complete, replayKey = eventId)",
+    "tone": "yellow",
+    "replay": true
+  },
+  {
+    "id": "TextReveal",
+    "group": "Text",
+    "action": "Replay reveal",
+    "code": "TextReveal(\n    lines = listOf(\"A thoughtful entrance.\",\n        \"A readable resting state.\"),\n    replayKey = eventId,\n)",
+    "tone": "lilac",
+    "replay": true
+  },
+  {
+    "id": "ShimmerText",
+    "group": "Text",
+    "action": "Replay shimmer",
+    "code": "ShimmerText(text = \"A moment of clarity\", replayKey = eventId)",
+    "tone": "peach",
+    "replay": true
+  },
+  {
+    "id": "ThinkingStates",
+    "group": "Text",
+    "action": "Next activity",
+    "code": "ThinkingStates(text = activityLabel, replayKey = eventId)",
+    "tone": "yellow",
+    "replay": true
+  },
+  {
+    "id": "StreamingText",
+    "group": "Text",
+    "action": "Append words",
+    "code": "StreamingText(text = receivedText, streamKey = responseId)",
+    "tone": "green",
+    "replay": true
+  },
+  {
+    "id": "ReasoningStream",
+    "group": "Text",
+    "action": "Add activity",
+    "code": "ReasoningStream(entries = activityLog, maxVisibleEntries = 2)",
+    "tone": "lilac",
+    "replay": false
+  },
+  {
+    "id": "ExpandableCard",
+    "group": "Layout",
+    "action": "Toggle details",
+    "code": "ExpandableCard(\n    expanded = expanded,\n    onExpandedChange = { expanded = it },\n    title = \"Delivery details\",\n) { Text(\"Arriving tomorrow\") }",
+    "tone": "peach",
+    "replay": false
+  },
+  {
+    "id": "MotionContent",
+    "group": "Layout",
+    "action": "Change content",
+    "code": "MotionContent(targetState = state) { current ->\n    Text(current.label)\n}",
+    "tone": "yellow",
+    "replay": false
+  },
+  {
+    "id": "AnimatedStatusText",
+    "group": "Feedback",
+    "action": "Change status",
+    "code": "AnimatedStatusText(text = status)",
+    "tone": "green",
+    "replay": false
+  },
+  {
+    "id": "AnimatedCountBadge",
+    "group": "Numbers",
+    "action": "Change count",
+    "code": "AnimatedCountBadge(count = unreadCount)",
+    "tone": "yellow",
+    "replay": false
+  },
+  {
+    "id": "LoadingContent",
+    "group": "Layout",
+    "action": "Toggle loading",
+    "code": "LoadingContent(\n    loading = loading,\n    placeholder = { CollectionPlaceholder() },\n) { CollectionContent() }",
+    "tone": "lilac",
+    "replay": false
+  },
+  {
+    "id": "CompletionIndicator",
+    "group": "Feedback",
+    "action": "Toggle completion",
+    "code": "CompletionIndicator(complete = complete)",
+    "tone": "green",
+    "replay": false
+  }
+]
