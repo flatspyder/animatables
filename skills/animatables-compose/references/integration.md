@@ -58,7 +58,7 @@ All functions are in `com.singleoriginapps.animatables`. Check source for option
 | Deliberate text handoff | `TextStateSwap(text, replayKey = eventId)` | Caller; real label state |
 | Icon swap inside a labeled control | `IconSwap(targetState) { state -> ... }` | Caller; keep button semantics/hit target on host |
 | Short grouped introduction | `TextReveal(lines, replayKey = eventId)` | Caller; lines wrap naturally |
-| Finite text highlight | `ShimmerText(text, active = true)` | Caller; plays two two-second sweeps, then rests |
+| Text highlight | `ShimmerText(text, active = true, continuous = true)` | Caller; pause/stop, or `continuous = false` for two sweeps |
 | Truthful activity state | `ThinkingStates(text, active = working)` | Caller; state changes only with actual work |
 | Appended response text | `StreamingText(text, streamKey = responseId)` | Caller; actual text, pause/stop, stream identity |
 | Compact activity transcript | `ReasoningStream(entries, maxVisibleEntries = 2)` | Caller; actual entries and expanded/pause controls |
@@ -122,7 +122,7 @@ the caller's error after success. Refresh indicators settle to static partial tr
 disabled. There is no data cache, request, automatic retry or navigation inside the container.
 
 Audio levels are normalized 0..1; NaN is zero, infinities and other out-of-range values are clamped.
-`AudioWaveform` linearly resamples ordered input to `barCount` (default 32, allowed 3..96). Empty
+`AudioWaveform` linearly resamples ordered input to `barCount` (default 24, allowed 3..96). Empty
 input is silence. It defaults to 240 × 72 dp; `AudioLevelIcon` defaults to 24 dp. Inactive waveform
 and icon states are baselines. With reduced motion the active waveform/profile and ring stay fixed
 even if the host continues providing samples. State labels remain accessible without per-sample
@@ -233,7 +233,7 @@ SuccessCheck(
 
 `Icon` is from Material 3; `size` and `dp` are the standard Compose layout/unit imports. The same slot works on `CompletionSpinner`.
 
-`ShimmerText` performs two two-second neutral luminance sweeps at normal scale, then leaves ordinary static text. The moving peak uses the original glyph color. Shaded regions move that color toward `MaterialTheme.colorScheme.surface`; when the supplied color/alpha already exceeds 4.5:1 calculated contrast against that surface, shading is bounded to retain at least 4.5:1. A supplied color already at or below 4.5:1 is preserved rather than faded further. `SrcIn` retains caller glyph alpha. The contrast calculation is specific to the theme surface: verify the actual background when the component is placed elsewhere. `ThinkingStates` uses the same highlight. `active = false` stops it, and Android/app-disabled animation leaves a readable label. Do not change replay keys repeatedly to create a perpetual loop.
+`ShimmerText` continuously repeats two-second luminance sweeps by default. Provide a pause/stop control for ongoing motion. Set `continuous = false` for two sweeps, then ordinary static text. Light surfaces keep the stronger original/theme `onSurface` dark ink outside a lighter travelling spotlight with a broad bright plateau and short soft shoulders. Dark surfaces retain a brighter spotlight over shaded ink. Lightening moves ink toward `MaterialTheme.colorScheme.surface`; when the supplied color/alpha already exceeds 4.5:1 calculated contrast against that surface, shading is bounded to retain at least 4.5:1. A supplied color already at or below 4.5:1 is preserved rather than faded further. `SrcIn` retains caller glyph alpha. Verify the actual background when placed elsewhere. `ThinkingStates` uses the finite variant. `active = false` stops either mode immediately; Android/app-disabled animation leaves an ordinary readable label. `replayKey` restarts a deliberate event.
 
 ### Number flow
 
@@ -254,11 +254,11 @@ NumberPopIn(
 
 ### Streaming paragraphs and activity
 
-`StreamingText` accepts the complete current response and displays an ordered sequence of word opacity fades: 350ms per word, starts paced 60ms apart, with no travel or blur. It draws one native measured paragraph through the same word-opacity path throughout. There is no full native-text fallback or base/overlay handoff during append, layout, or settling. Whitespace, native wrapping, RTL shaping, and paragraph breaks remain part of that shared layout.
+`StreamingText` accepts the complete current response and displays an ordered sequence of word opacity fades: 480ms per word with a gentle settling curve, starts paced 60ms apart, with no travel or blur. It draws one native measured paragraph through the same word-opacity path throughout. There is no full native-text fallback or base/overlay handoff during append, layout, or settling. Whitespace, native wrapping, RTL shaping, and paragraph breaks remain part of that shared layout.
 
 Appended batches join the existing queue; settled words do not restart and extending the current partial word preserves opacity. A non-prefix replacement resets presentation identity; change `streamKey` for another response. `animate = false` displays the full current text immediately. The accessible value is the full latest text, without live-region announcements for every token. Paginate very large transcripts in the host app. Longer streaming queues can exceed the 300ms group-entrance budget because this is paced incoming content; retain a host pause/stop control.
 
-`ReasoningStream` shows the last `maxVisibleEntries` activity entries. A single measured column scrolls by actual displaced entry heights using a 500ms decelerating curve. Surviving entries keep a continuous path when other entries wrap or use larger text. A 28dp gradient overlaps visible glyphs only at an edge with hidden content beyond it. The bottom edge becomes sharp when the newest entry settles, and a fully expanded transcript has no edge mask. Entries wrap, so the parameter is not an exact visual-line limit. Its semantic value contains the full supplied transcript.
+`ReasoningStream` shows the last `maxVisibleEntries` activity entries. A single measured column scrolls by actual displaced entry heights using a 500ms decelerating curve. Surviving entries keep a continuous path when other entries wrap or use larger text. The viewport clips to exactly the latest configured entries at rest, without extra vertical insets or a faded older entry. Full-strength top and bottom gradients share the same 28dp depth and a visibility envelope coordinated with the scroll. They reach full strength early and clear before the column settles; their depth does not collapse with remaining distance. Settled text has no residual mask or trailing fade animation. Expanded transcripts remain unmasked. Entries wrap, so the parameter is not an exact visual-line limit. Its semantic value contains the full supplied transcript.
 
 `ReasoningStream.active = false` removes motion while still accepting updated entries. To pause updates, freeze the host's displayed snapshot and provide an expanded transcript view. Pass user-visible activity such as "Searching saved documents" rather than fabricated internal reasoning. Neither stream component owns a timer or network request.
 
@@ -278,3 +278,18 @@ kotlin {
 ```
 
 Public component signatures and package names match Android. Keep an Expressive Material theme at the host boundary. The shared Material 3 API currently uses JetBrains 1.12.0-alpha03; Android selects Jetpack Material 3 1.5.0-beta02. Do not use Android-only Material APIs from common code. iOS and web reductions are observed automatically; desktop hosts must bridge their own motion preference with `AnimatablesMotion(enabled = ...)`. Motion opt-outs always retain the requested target state. Blur is an accent; platform fonts and Unicode versions can differ, so verify layout and semantics on each platform being shipped.
+
+
+### Live audio energy
+
+`AudioWaveform` defaults to 24 anchored, round-ended bars. Heights use fast theme effects for
+rising energy and default effects for falling energy, without spatial bounce or lateral travel.
+Supply 20–40ms RMS/peak envelopes or frequency-band energy with a stable gain and noise floor;
+per-frame normalization hides silence and makes quiet input look loud. The host owns acquisition,
+windowing, normalization and sampling. Samples are resampled to the requested bar count but are
+not invented by the library. App/system motion-disabled profiles remain static.
+
+The catalogs use 32ms measured spectral windows from a synthesized speech phrase for a visual-only
+example. `scripts/generate-speech-waveform.py` regenerates this fixture from a WAV file (or an
+installed macOS voice); intermediate audio stays in `catalog/build/`. No microphone or audio
+playback is started by the component or the demo.

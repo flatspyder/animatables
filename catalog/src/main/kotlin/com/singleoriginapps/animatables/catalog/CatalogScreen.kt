@@ -24,13 +24,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import com.singleoriginapps.animatables.samples.MaterialSymbols
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -54,7 +52,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -77,7 +74,7 @@ private enum class Collection(val title: String) {
     All("All"), Text("Text"), Feedback("Feedback"), Activity(
         "Activity"
     ),
-    Layout("Layout"), Loading("Loading"), Audio("Audio"), Native("M3 recipes")
+    Layout("Layout"), Loading("Loading"), Audio("Audio")
 }
 
 private data class Demo(
@@ -91,7 +88,7 @@ private data class Demo(
 private val demos = listOf(
     Demo("async-action", "Action feedback", "Save, working, success and retry in one stable control.", Collection.Feedback, "AsyncActionButton"),
     Demo("refresh", "Refresh and recover", "Refresh saved places, simulate being offline, then retry without losing your selection.", Collection.Loading, "RefreshableContent"),
-    Demo("waveform", "Audio waveform", "A larger waveform follows supplied audio samples.", Collection.Audio, "AudioWaveform"),
+    Demo("waveform", "Audio waveform", "Anchored energy bands respond to speech attacks and pauses.", Collection.Audio, "AudioWaveform"),
     Demo("audio-icon", "Audio level icon", "Compact audio activity inside an existing control.", Collection.Audio, "AudioLevelIcon"),
     Demo("audio-ring", "Recording activity ring", "A reactive halo keeps the recording button in place.", Collection.Audio, "AudioActivityRing"),
     Demo(
@@ -181,7 +178,7 @@ private val demos = listOf(
     Demo(
         "03",
         "Little things add up",
-        "A badge that keeps the count readable.",
+        "Counts roll as the badge grows and shrinks.",
         Collection.Feedback,
         "AnimatedCountBadge"
     ),
@@ -198,20 +195,6 @@ private val demos = listOf(
         "Related states share a single surface.",
         Collection.Layout,
         "MotionContent"
-    ),
-    Demo(
-        "07",
-        "Already expressive",
-        "Use Material's selection controls directly.",
-        Collection.Native,
-        "Checkbox · Switch"
-    ),
-    Demo(
-        "08",
-        "From the right place",
-        "An anchored menu with native behaviour.",
-        Collection.Native,
-        "DropdownMenu"
     ),
 )
 
@@ -327,7 +310,7 @@ private fun CatalogScreen(
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.semantics { heading() })
                         Text(
-                            "${demos.count { it.group != Collection.Native }} motion demos / 02 recipes",
+                            "${demos.size} motion demos",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -467,8 +450,6 @@ private fun DemoContent(
         "03" -> BadgeDemo()
         "04" -> LoadingDemo()
         "06" -> ContentDemo()
-        "07" -> SelectionDemo()
-        "08" -> MenuDemo()
         else -> MotionEffectDemo(id, spinnerStep, spinnerWavy, spinnerDeterminate, customSuccessIcon)
     }
 }
@@ -496,7 +477,12 @@ private fun EffectInspector(
                 .padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            TextButton(onClick = onClose) { Text("‹  Back to collection") }
+            TextButton(onClick = onClose) {
+                Icon(MaterialSymbols.ArrowBack,
+                    contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("Back to collection")
+            }
             Text(
                 demo.title,
                 style = MaterialTheme.typography.headlineLarge,
@@ -604,8 +590,7 @@ private fun apiExample(id: String) = when (id) {
     "03" -> "AnimatedCountBadge(count = unread)"
     "04" -> "LoadingContent(loading = loading,\n  placeholder = { Skeleton() },\n) { Profile() }"
     "06" -> "MotionContent(targetState = selected)\n  { item -> ItemContent(item) }"
-    "07" -> "Switch(checked = enabled,\n  onCheckedChange = { enabled = it })"
-    else -> "DropdownMenu(expanded = open,\n  onDismissRequest = { open = false }\n) { /* DropdownMenuItem */ }"
+    else -> error("Unknown demo: $id")
 }
 
 @Composable
@@ -639,7 +624,7 @@ private fun StatusDemo() {
 
 @Composable
 private fun BadgeDemo() {
-    var count by rememberSaveable { mutableIntStateOf(3) }
+    var count by rememberSaveable { mutableIntStateOf(9) }
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -653,11 +638,13 @@ private fun BadgeDemo() {
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = { count = (count - 1).coerceAtLeast(0) }) {
-                Text(
-                    "−",
-                    modifier = Modifier.semantics { contentDescription = "Remove notification" })
+                Icon(MaterialSymbols.Remove,
+                    contentDescription = "Remove notification")
             }
-            FilledTonalButton(onClick = { count++ }) { Text("+ Add") }
+            FilledTonalButton(onClick = { count++ }) { Text("Add one") }
+        }
+        TextButton(onClick = { count = if (count < 10) 12 else 9 }) {
+            Text("Try 9 ↔ 12")
         }
     }
 }
@@ -750,52 +737,6 @@ private fun ContentDemo() {
         FilledTonalButton(onClick = {
             selected = !selected
         }) { Text(if (selected) "Less detail" else "More detail") }
-    }
-}
-
-@Composable
-private fun SelectionDemo() {
-    var checked by rememberSaveable { mutableStateOf(true) }
-    Column {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .toggleable(value = checked, role = Role.Checkbox, onValueChange = { checked = it })
-                .heightIn(min = 48.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(
-                checked,
-                onCheckedChange = null
-            ); Spacer(Modifier.width(12.dp)); Text("Keep me in the loop")
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Switch(
-                checked,
-                { checked = it },
-                modifier = Modifier.semantics { contentDescription = "Keep me in the loop" }); Text(
-            if (checked) "On" else "Off"
-        )
-        }
-    }
-}
-
-@Composable
-private fun MenuDemo() {
-    var open by rememberSaveable { mutableStateOf(false) }
-    var selection by rememberSaveable { mutableStateOf("Choose a pace") }
-    Box {
-        FilledTonalButton(onClick = { open = true }) { Text(selection) }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-            listOf("Take it slow", "Find a rhythm", "Make a move").forEach { item ->
-                DropdownMenuItem(
-                    text = { Text(item) },
-                    onClick = { selection = item; open = false })
-            }
-        }
     }
 }
 

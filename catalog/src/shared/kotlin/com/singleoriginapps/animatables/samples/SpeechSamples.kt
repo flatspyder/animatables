@@ -5,7 +5,7 @@ import kotlin.random.Random
 /**
  * Repeatable synthetic speech envelopes for the two catalogs; contains no audio or microphone use.
  * Unequal syllable attacks, held vowels, noisy releases and phrase gaps replace periodic waves.
- * Waveform bars show recent amplitude history, not equally phased oscillators.
+ * The compact level icon and activity ring use this scalar fixture.
  */
 internal object SpeechSamples {
     const val FrameMillis = 60L
@@ -41,5 +41,4 @@ internal object SpeechSamples {
 
     fun level(frame: Int): Float = amplitudes[((frame % amplitudes.size) + amplitudes.size) % amplitudes.size]
 
-    fun waveform(frame: Int): List<Float> = List(40) { index -> level(frame - 39 + index) }
 }

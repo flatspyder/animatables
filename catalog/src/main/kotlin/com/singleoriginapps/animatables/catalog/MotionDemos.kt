@@ -1,6 +1,7 @@
 package com.singleoriginapps.animatables.catalog
 
-import androidx.compose.foundation.Canvas
+import androidx.compose.material3.Icon
+import com.singleoriginapps.animatables.samples.MaterialSymbols
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -29,9 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -134,38 +131,9 @@ private fun IconDemo() {
 
 @Composable
 private fun DemoSymbol(close: Boolean) {
-    val color = MaterialTheme.colorScheme.primary
-    Canvas(Modifier
-        .size(40.dp)
-        .semantics { contentDescription = if (close) "Close" else "Menu" }) {
-        val stroke = 3.dp.toPx()
-        if (close) {
-            drawLine(
-                color,
-                Offset(size.width * .23f, size.height * .23f),
-                Offset(size.width * .77f, size.height * .77f),
-                stroke,
-                StrokeCap.Round
-            )
-            drawLine(
-                color,
-                Offset(size.width * .77f, size.height * .23f),
-                Offset(size.width * .23f, size.height * .77f),
-                stroke,
-                StrokeCap.Round
-            )
-        } else {
-            listOf(.25f, .5f, .75f).forEach { y ->
-                drawLine(
-                    color,
-                    Offset(size.width * .15f, size.height * y),
-                    Offset(size.width * .85f, size.height * y),
-                    stroke,
-                    StrokeCap.Round
-                )
-            }
-        }
-    }
+    Icon(if (close) MaterialSymbols.Close else MaterialSymbols.Menu,
+        contentDescription = if (close) "Close" else "Menu",
+        modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
 }
 
 @Composable
@@ -209,10 +177,12 @@ private fun RevealDemo() {
 private fun ShimmerDemo() {
     var active by rememberSaveable { mutableStateOf(true) }
     var replay by rememberSaveable { mutableIntStateOf(0) }
+    var continuous by rememberSaveable { mutableStateOf(true) }
     DemoColumn {
         ShimmerText(
             "Planning the next move",
             active = active,
+            continuous = continuous,
             replayKey = replay,
             style = MaterialTheme.typography.titleLarge
         )
@@ -220,8 +190,12 @@ private fun ShimmerDemo() {
             if (active) "Pause shimmer" else "Resume shimmer",
             { active = !active },
             { active = true; replay++ })
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(continuous, { continuous = it })
+            Text("Continuous shimmer", style = MaterialTheme.typography.labelMedium)
+        }
         Text(
-            "Two slower sweeps, then a quiet resting state.",
+            if (continuous) "Repeats until paused." else "Two sweeps, then a quiet resting state.",
             style = MaterialTheme.typography.bodySmall
         )
     }
@@ -311,7 +285,7 @@ private fun StreamDemo() {
             delay(130); count++
         }
         if (count == chunks.size) {
-            delay(450); running = false
+            delay(600); running = false
         }
     }
     DemoColumn {
@@ -423,15 +397,5 @@ private fun CompletionSpinnerRestingPreview() {
 
 @Composable
 private fun CustomSuccessIcon() {
-    val color = LocalContentColor.current
-    Canvas(Modifier.fillMaxSize()) {
-        val icon = Path().apply {
-            moveTo(size.width * .5f, 0f)
-            lineTo(size.width, size.height * .5f)
-            lineTo(size.width * .5f, size.height)
-            lineTo(0f, size.height * .5f)
-            close()
-        }
-        drawPath(icon, color)
-    }
+    Icon(MaterialSymbols.Verified, contentDescription = null, modifier = Modifier.fillMaxSize())
 }

@@ -8,7 +8,7 @@ Theme-aware Compose Multiplatform components for readable state changes and Mate
 | --- | --- |
 | `AsyncActionButton` | Native action control with a fixed leading icon slot and working, success and retry feedback |
 | `RefreshableContent` | Initial loading, empty/error recovery and refresh that retains existing content |
-| `AudioWaveform` | Large waveform driven by supplied amplitudes or frequency bands |
+| `AudioWaveform` | Anchored audio-energy bars with quick attacks and gentle release |
 | `AudioLevelIcon` | Compact five-bar audio activity indicator |
 | `AudioActivityRing` | Level-reactive halo around an existing recording button |
 | `MotionContent` | In-place content replacement with a fade, vertical entrance and size reflow |
@@ -22,9 +22,9 @@ Theme-aware Compose Multiplatform components for readable state changes and Mate
 | `IconSwap` | Icon replacement inside the caller's existing control |
 | `SuccessCheck` | Completion feedback with modifier sizing, explicit replay and an optional icon |
 | `TextReveal` | Staggered introduction of a short group of lines |
-| `ShimmerText` | Two finite glyph highlights |
+| `ShimmerText` | Continuous glyph highlights, or two sweeps with `continuous = false` |
 | `ThinkingStates` | Caller-owned activity labels |
-| `StreamingText` | Ordered word fades that preserve settled text |
+| `StreamingText` | Overlapping word fades that preserve settled text |
 | `ReasoningStream` | A compact window of caller-supplied activity entries |
 | `AnimatablesMotion` | An additional application-level motion preference |
 
@@ -126,3 +126,8 @@ git config --local core.hooksPath .githooks
 ## License
 
 [Apache-2.0](LICENSE).
+
+Icons use Google Material Symbols Rounded as generated Kotlin vectors, shared across supported
+Compose targets. The web page loads the matching font through Google Fonts. See
+[third-party notices](THIRD_PARTY_NOTICES.md) and the [generator](scripts/generate-material-symbols.py).
+Use native Material controls directly for switches, checkboxes and menus.
