@@ -28,6 +28,7 @@ try {
       path.join(root, `animatables/src/commonMain/kotlin/com/singleoriginapps/animatables/${id}.kt`),
       path.join(gallery, 'src/wasmJsMain/kotlin/Gallery.kt'),
       path.join(resources, 'playground.html'),
+      path.join(root, 'catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples/SpeechSamples.kt'),
     ]) hash.update(await readFile(file));
     const digest = hash.digest('hex');
     if (builtSources[id] !== digest) throw new Error(`Built source differs for ${id}. Rebuild before capturing.`);

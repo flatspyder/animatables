@@ -9,7 +9,8 @@ const gallery = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const samples = JSON.parse(await readFile(path.join(gallery, 'gallery-samples.json'), 'utf8'));
 const base = new URL(process.argv[2] || 'http://127.0.0.1:8080/');
 const focus = process.argv[3] || 'all';
-assert.match(focus,/^(all|spinner)$/,'Optional focus must be all or spinner.');
+assert.match(focus,/^(all|spinner|action-audio)$/,'Optional focus must be all, spinner or action-audio.');
+const actionAudio = new Set(['AsyncActionButton','RefreshableContent','AudioWaveform','AudioLevelIcon','AudioActivityRing']);
 assert.ok(['http:', 'https:'].includes(base.protocol), 'Serve the current gallery over HTTP.');
 const output = path.join(gallery, 'build/generated/gallery/verification');
 await mkdir(output, {recursive:true});
@@ -67,12 +68,38 @@ try {
 
   // Smoke-test actual pixels after two successive actions for every component.
   // Protocol unit tests alone cannot detect an empty graphics layer.
-  for (const {id} of focus==='all'?samples:[]) {
+  for (const {id} of focus==='all'?samples:focus==='action-audio'?samples.filter(item=>actionAudio.has(item.id)):[]) {
     await open(id);
     await settled(page.locator('#playground'),`${id}-initial`);
-    for (let action=1;action<=2;action++) {
+    if (focus==='action-audio' && id==='RefreshableContent') {
+      // Compose's accessibility div describes the hit bounds; its canvas owns pointer input.
+      await page.frameLocator('#playground').getByText('Pin Kyoto',{exact:true}).click({force:true});
+    }
+    for (let action=1;action<=(focus==='action-audio' && id!=='RefreshableContent'?6:2);action++) {
       await page.locator('#advance').click();
+      if (id==='RefreshableContent') {
+        await page.frameLocator('#playground').getByText('Checking for updates…',{exact:true}).waitFor();
+        await page.frameLocator('#playground').getByText('Checking for updates…',{exact:true}).waitFor({state:'hidden'});
+        await page.frameLocator('#playground').getByText('Updated just now',{exact:true}).waitFor();
+      }
       await settled(page.locator('#playground'),`${id}-action-${action}`);
+      if (focus==='action-audio' && id==='RefreshableContent') {
+        await page.frameLocator('#playground').getByText('Kyoto pinned',{exact:true}).waitFor();
+      }
+    }
+    if (focus==='action-audio' && id==='RefreshableContent') {
+      const frame=page.frameLocator('#playground');
+      await frame.getByText('Try offline',{exact:true}).click({force:true});
+      await frame.getByText('You’re offline. Your saved places are still available.',{exact:true}).waitFor();
+      await frame.getByText('Kyoto pinned',{exact:true}).waitFor();
+      await frame.getByText('Kyoto · Lisbon · Copenhagen',{exact:true}).waitFor();
+      await settled(page.locator('#playground'),'refresh-offline-retains-places');
+      await frame.getByText('Retry',{exact:true}).click({force:true});
+      await frame.getByText('Checking for updates…',{exact:true}).waitFor();
+      await frame.getByText('Checking for updates…',{exact:true}).waitFor({state:'hidden'});
+      await frame.getByText('You’re offline. Your saved places are still available.',{exact:true}).waitFor({state:'hidden'});
+      await frame.getByText('Kyoto pinned',{exact:true}).waitFor();
+      await settled(page.locator('#playground'),'refresh-recovered-same-places');
     }
     await close();
     console.log(`PASS visible ${id} pixels after repeated detail-page actions`);
@@ -121,6 +148,7 @@ try {
     }
   }
 
+  if (focus!=='action-audio') {
   await open('CompletionSpinner');
   assert.equal(await page.locator('#spinner-options').isVisible(),true);
   assert.equal(await page.locator('#spinner-style').inputValue(),'standard');
@@ -182,6 +210,64 @@ try {
   }
   assert.deepEqual(errors,[],'The gallery must not emit browser page errors.');
   console.log('PASS native spinner detail options, simple canvas, four completion/reset actions per style/mode, single card play control');
+  }
+  if (focus==='action-audio') {
+    for (const id of ['AudioWaveform','AudioLevelIcon','AudioActivityRing']) {
+      await open(id);
+      const frame=page.frameLocator('#playground');
+      if (await page.locator('#motion').isChecked()) await page.locator('.motion-preference .switch-label').click();
+      const initial=await settled(page.locator('#playground'));
+      let live=initial;
+      for (let attempt=0;attempt<10 && live.hash===initial.hash;attempt++) {
+        await page.waitForTimeout(200);
+        live=await shot(page.locator('#playground'));
+      }
+      assert.notEqual(initial.hash,live.hash,`${id} must animate simulated data without repeated clicks.`);
+      await frame.getByText('Pause sample',{exact:true}).click({force:true});
+      await frame.getByText('Sample paused',{exact:true}).waitFor();
+      const paused=await settled(page.locator('#playground'));
+      await page.waitForTimeout(400);
+      assert.equal(paused.hash,(await shot(page.locator('#playground'))).hash,`${id} pause must stop sample motion.`);
+      await frame.getByText('Play sample',{exact:true}).click({force:true});
+      const resumed=await settled(page.locator('#playground'));
+      let next=resumed;
+      for (let attempt=0;attempt<10 && next.hash===resumed.hash;attempt++) {
+        await page.waitForTimeout(200);
+        next=await shot(page.locator('#playground'));
+      }
+      assert.notEqual(resumed.hash,next.hash,`${id} sample must resume.`);
+      if (!await page.locator('#motion').isChecked()) await page.locator('.motion-preference .switch-label').click();
+      const reduced=await settled(page.locator('#playground'));
+      await page.waitForTimeout(400);
+      assert.equal(reduced.hash,(await shot(page.locator('#playground'))).hash,`${id} must be static with reduced motion.`);
+      await frame.getByText('Mute',{exact:true}).click({force:true});
+      const inactive=await settled(page.locator('#playground'));
+      assert.notEqual(reduced.hash,inactive.hash,`${id} muted state must remain distinct.`);
+      await close();
+    }
+    await open('AsyncActionButton');
+    if (await page.locator('#motion').isChecked()) await page.locator('.motion-preference .switch-label').click();
+    await page.waitForTimeout(1100);
+    const action=page.frameLocator('#playground').getByRole('button');
+    const bounds=await action.boundingBox();
+    const labelClip={x:bounds.x+52,y:bounds.y,width:bounds.width-104,height:bounds.height};
+    const labelShot=async name => pixels(await page.screenshot({clip:labelClip,path:path.join(output,name+'.png')}));
+    const before=await labelShot('action-label-before');
+    await page.locator('#advance').click();
+    const frames=[];
+    for (let frame=0;frame<4;frame++) {
+      frames.push(await labelShot(`action-label-frame-${frame}`));
+      await page.waitForTimeout(20);
+    }
+    await page.waitForTimeout(700);
+    const after=await labelShot('action-label-after');
+    assert.notEqual(before.hash,after.hash,'The action must reach a different label.');
+    assert.ok(frames.some(frame=>frame.hash!==before.hash && frame.hash!==after.hash),
+      'The web action label must have a visible intermediate frame, not just a cut.');
+    await close();
+    console.log('PASS centred action label with visible intermediate web frames; speech samples autoplay, pause/resume, mute and reduced motion');
+  }
+  assert.deepEqual(errors,[],'The gallery must not emit browser page errors.');
 } finally {
   await browser.close();
 }

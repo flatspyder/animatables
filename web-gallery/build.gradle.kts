@@ -19,6 +19,7 @@ kotlin {
     }
     sourceSets {
         wasmJsMain {
+            kotlin.srcDir(rootProject.file("catalog/src/shared/kotlin"))
             dependencies { implementation(project(":animatables")) }
             resources.srcDir(project.layout.buildDirectory.dir("generated/gallery"))
         }
@@ -35,6 +36,7 @@ val generateGalleryContent = tasks.register<Exec>("generateGalleryContent") {
     description = "Generate gallery descriptions and signatures from commonMain Kotlin source."
     inputs.dir(rootProject.layout.projectDirectory.dir("animatables/src/commonMain/kotlin"))
     inputs.dir(rootProject.layout.projectDirectory.dir("catalog/src/main/kotlin"))
+    inputs.dir(rootProject.layout.projectDirectory.dir("catalog/src/shared/kotlin"))
     inputs.files("gallery-samples.json", "index.template.html", "scripts/generate-gallery.py")
     inputs.files("src/wasmJsMain/kotlin/Gallery.kt", "src/wasmJsMain/resources/playground.html")
     inputs.files(fileTree(layout.buildDirectory.dir("generated/gallery/previews")) { include("*.jpg") })

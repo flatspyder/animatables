@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
@@ -21,6 +22,8 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
@@ -62,7 +65,15 @@ import com.singleoriginapps.animatables.CompletionSpinnerStyle
 import com.singleoriginapps.animatables.SuccessCheck
 import com.singleoriginapps.animatables.TextReveal
 import com.singleoriginapps.animatables.TextStateSwap
+import kotlinx.coroutines.delay
 import com.singleoriginapps.animatables.ThinkingStates
+import com.singleoriginapps.animatables.AsyncActionButton
+import com.singleoriginapps.animatables.AsyncActionState
+import com.singleoriginapps.animatables.RefreshableContent
+import com.singleoriginapps.animatables.AudioWaveform
+import com.singleoriginapps.animatables.AudioLevelIcon
+import com.singleoriginapps.animatables.AudioActivityRing
+import com.singleoriginapps.animatables.samples.SpeechSamples
 
 private object GalleryState {
     var component by mutableStateOf("NumberPopIn")
@@ -214,6 +225,20 @@ private fun Demo(
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         when (component) {
+            "AsyncActionButton" -> {
+                var localStep by remember { mutableIntStateOf(step) }
+                LaunchedEffect(step) { localStep = step }
+                val state = AsyncActionState.entries[localStep % 4]
+                AsyncActionButton(state, onClick = { localStep++ }, label = "Save changes", modifier = Modifier.width(240.dp),
+                    workingLabel = "Saving", successLabel = "Changes saved", errorLabel = "Retry save",
+                    progress = { .45f })
+                Text(if (state == AsyncActionState.Error) "Couldn’t save. Your changes are still here."
+                    else "Save · working · success · retry", style = MaterialTheme.typography.bodyMedium)
+            }
+            "RefreshableContent" -> RefreshRecoveryDemo(step)
+            "AudioWaveform" -> AudioSampleDemo("waveform", step, preparing)
+            "AudioLevelIcon" -> AudioSampleDemo("icon", step, preparing)
+            "AudioActivityRing" -> AudioSampleDemo("ring", step, preparing)
             "NumberPopIn" -> {
                 Text("TOTAL BALANCE", style = MaterialTheme.typography.labelMedium)
                 NumberPopIn(
@@ -412,5 +437,83 @@ private fun CustomSuccessIcon() {
             close()
         }
         drawPath(icon, color)
+    }
+}
+
+
+/** One retained collection. Refresh and offline/retry never switch to another dataset. */
+@Composable
+private fun RefreshRecoveryDemo(step: Int) {
+    var request by remember { mutableIntStateOf(0) }
+    var appliedStep by remember { mutableIntStateOf(step) }
+    var loading by remember { mutableStateOf(false) }
+    var offline by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    var updated by remember { mutableStateOf(false) }
+    LaunchedEffect(step) {
+        if (appliedStep != step) { appliedStep = step; offline = false; request++ }
+    }
+    LaunchedEffect(request) {
+        if (request > 0) {
+            loading = true
+            delay(1400)
+            if (offline) error = "You’re offline. Your saved places are still available."
+            else { error = null; updated = true }
+            loading = false
+        }
+    }
+    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Pin Kyoto, then try refreshing while offline.", style = MaterialTheme.typography.bodySmall)
+        RefreshableContent(hasContent = true, loading = loading, error = error,
+            onRetry = { offline = false; request++ }, refreshingLabel = "Checking for updates…",
+            placeholder = {}, empty = {}) {
+            var pinned by remember { mutableStateOf(false) }
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Saved places", style = MaterialTheme.typography.titleLarge)
+                Text("Kyoto · Lisbon · Copenhagen")
+                androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TextButton(onClick = { pinned = !pinned }) { Text(if (pinned) "Kyoto pinned" else "Pin Kyoto") }
+                    TextButton(onClick = { offline = true; request++ }, enabled = !loading) { Text("Try offline") }
+                }
+                Text(if (updated) "Updated just now" else "Saved earlier", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
+/** Sample generation belongs to the demo, not the audio components. */
+@Composable
+private fun AudioSampleDemo(kind: String, step: Int, preparing: Boolean) {
+    var playing by remember { mutableStateOf(true) }
+    var active by remember { mutableStateOf(true) }
+    var sample by remember { mutableIntStateOf(SpeechSamples.InitialFrame) }
+    var appliedStep by remember { mutableIntStateOf(step) }
+    LaunchedEffect(step) {
+        if (appliedStep != step) { appliedStep = step; playing = true; active = true }
+    }
+    LaunchedEffect(playing, active, preparing, GalleryState.motion) {
+        while (playing && active && !preparing && GalleryState.motion) { delay(SpeechSamples.FrameMillis); sample++ }
+    }
+    val level = SpeechSamples.level(sample)
+    val levels = SpeechSamples.waveform(sample)
+    val label = if (!active) "Sample muted" else if (playing) "Simulated voice" else "Sample paused"
+    when (kind) {
+        "waveform" -> AudioWaveform(levels, active, Modifier.fillMaxWidth().height(88.dp), label = label)
+        "icon" -> AudioLevelIcon(level, active, label = label, color = MaterialTheme.colorScheme.primary)
+        else -> AudioActivityRing(level, active) {
+            FilledIconButton(onClick = { active = !active }, modifier = Modifier.size(56.dp)
+                .semantics { contentDescription = if (active) "Mute sample" else "Unmute sample" }) {
+                val color = LocalContentColor.current
+                Canvas(Modifier.size(18.dp)) {
+                    if (active) drawRoundRect(color, cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx()))
+                    else drawCircle(color)
+                }
+            }
+        }
+    }
+    Text(label, style = MaterialTheme.typography.titleMedium)
+    androidx.compose.foundation.layout.Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        TextButton(onClick = { playing = !playing }) { Text(if (playing) "Pause sample" else "Play sample") }
+        TextButton(onClick = { active = !active }) { Text(if (active) "Mute" else "Unmute") }
     }
 }

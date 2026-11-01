@@ -1,5 +1,45 @@
 [
   {
+    "id": "AsyncActionButton",
+    "group": "Feedback",
+    "action": "Next action state",
+    "code": "AsyncActionButton(\n    state = saveState, onClick = ::save,\n    modifier = Modifier.width(240.dp),\n    label = \"Save\", workingLabel = \"Saving\",\n    successLabel = \"Saved\", errorLabel = \"Retry\",\n)",
+    "tone": "peach",
+    "replay": false
+  },
+  {
+    "id": "RefreshableContent",
+    "group": "Layout",
+    "action": "Refresh saved places",
+    "code": "RefreshableContent(\n    hasContent = hasData, loading = refreshing,\n    error = error, onRetry = ::refresh,\n    placeholder = { Skeleton() },\n    empty = { Text(\"Nothing here yet\") },\n) { Collection(items) }",
+    "tone": "green",
+    "replay": false
+  },
+  {
+    "id": "AudioWaveform",
+    "group": "Audio",
+    "action": "Play sample",
+    "code": "AudioWaveform(\n    levels = sampledLevels, active = recording,\n    label = \"Recording\",\n)",
+    "tone": "lilac",
+    "replay": false
+  },
+  {
+    "id": "AudioLevelIcon",
+    "group": "Audio",
+    "action": "Play sample",
+    "code": "AudioLevelIcon(\n    level = audioLevel, active = recording,\n    label = \"Recording\",\n)",
+    "tone": "yellow",
+    "replay": false
+  },
+  {
+    "id": "AudioActivityRing",
+    "group": "Audio",
+    "action": "Play sample",
+    "code": "AudioActivityRing(level = audioLevel, active = recording) {\n    FilledIconButton(onClick = ::toggleRecording) {\n        Icon(micPainter, contentDescription = \"Toggle recording\")\n    }\n}",
+    "tone": "peach",
+    "replay": false
+  },
+  {
     "id": "NumberPopIn",
     "group": "Numbers",
     "action": "Change value",

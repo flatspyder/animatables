@@ -24,6 +24,7 @@ Commit these inputs:
 - `index.template.html`: page structure and content slots.
 - `gallery-samples.json`: component order, categories, sample calls and demo actions.
 - `src/wasmJsMain/kotlin/Gallery.kt`: demonstrations of the shared library.
+- `../catalog/src/shared/kotlin/`: deterministic speech-envelope samples shared with Android.
 - `src/wasmJsMain/resources/`: handwritten CSS, JavaScript, HTML renderer and SVG mark.
 - `scripts/`, Gradle configuration and dependency lockfiles: reproducible generation and automated
   checks.
@@ -94,6 +95,7 @@ setup links remain available if the live renderer cannot start.
 ./gradlew :animatables:jvmTest :unicode-tests:wasmJsNodeTest
 python3 web-gallery/scripts/test-gallery-coverage.py
 node web-gallery/scripts/test-viewer-controls.mjs http://127.0.0.1:8080/
+node web-gallery/scripts/test-viewer-controls.mjs http://127.0.0.1:8080/ action-audio
 ```
 
 These check source behavior and loading contracts. Assess motion performance on representative
@@ -103,6 +105,9 @@ The optional browser check uses the capture script's Playwright setup and overri
 visible pixels after repeated actions in every component, four complete text/icon cycles through
 both card and detail controls, and the spinner's native detail-page options. Verification captures
 are written beneath `build/generated/gallery/verification/`.
+The `action-audio` subset checks repeated action changes, a coherent refresh/offline/retry journey
+with a retained pinned place, and audio autoplay from simulated samples. It also verifies sample
+pause/resume, mute, and static reduced-motion profiles.
 
 ## Static hosting
 

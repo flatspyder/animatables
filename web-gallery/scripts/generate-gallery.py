@@ -65,7 +65,8 @@ def check_coverage(samples):
 
 
 def preview_hash(name):
-    files = [SOURCE / f"{name}.kt", GALLERY / "src/wasmJsMain/kotlin/Gallery.kt", RESOURCES / "playground.html"]
+    files = [SOURCE / f"{name}.kt", GALLERY / "src/wasmJsMain/kotlin/Gallery.kt", RESOURCES / "playground.html",
+             ROOT / "catalog/src/shared/kotlin/com/singleoriginapps/animatables/samples/SpeechSamples.kt"]
     return hashlib.sha256(b''.join(file.read_bytes() for file in files)).hexdigest()
 
 
