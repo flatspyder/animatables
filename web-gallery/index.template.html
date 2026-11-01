@@ -176,6 +176,25 @@
                 <button class="primary" disabled id="advance">Change value ↗</button>
                 <button class="secondary" disabled id="replay">↺ Replay</button>
             </div>
+            <fieldset class="spinner-options" hidden id="spinner-options">
+                <legend>Spinner options</legend>
+                <label for="spinner-style">Appearance
+                    <select id="spinner-style">
+                        <option value="standard">Standard</option>
+                        <option value="wavy">Wavy</option>
+                    </select>
+                </label>
+                <label for="spinner-mode">Progress mode
+                    <select id="spinner-mode">
+                        <option value="determinate">Determinate</option>
+                        <option value="indeterminate">Indeterminate</option>
+                    </select>
+                </label>
+            </fieldset>
+            <fieldset class="spinner-options" hidden id="success-options">
+                <legend>Success icon</legend>
+                <label for="custom-success-icon"><input id="custom-success-icon" type="checkbox">Use a custom icon</label>
+            </fieldset>
             <div class="motion-preference"><label class="switch-label"><input id="motion"
                                                                               type="checkbox"><span
                     aria-hidden="true" class="switch"></span>Reduce motion</label><span

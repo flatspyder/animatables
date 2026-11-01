@@ -61,4 +61,35 @@ const prepared = h=>h.receive({type:'animatables-prepared',component:h.runtime.c
   h.runtime.fail('test');h.runtime.action({...number,dark:true});
   assert.equal(h.loads(),2,'retry must replace the failed context');
 }
-console.log('PASS queued input, stale responses, persistent renderer, reduced motion, theme state and retry');
+{
+  const h=harness();h.runtime.action(icon);ready(h);prepared(h);
+  for (let step=2;step<=5;step++) {
+    h.runtime.action(icon);
+    assert.equal(h.messages.at(-1).step,step,'every repeated click must reach the renderer');
+    assert.equal(h.messages.at(-1).prepare,false);
+    assert.equal(h.messages.at(-1).motion,true);
+  }
+  assert.equal(h.loads(),1);
+}
+{
+  const spinner = {component:'CompletionSpinner',dark:false,motion:true,spinnerWavy:false,spinnerDeterminate:true};
+  const h=harness();h.runtime.action(spinner);ready(h);prepared(h);
+  h.runtime.prepare({...spinner,spinnerWavy:true});
+  assert.equal(h.runtime.prepared,false,'detail style changes must prepare the requested rendering');
+  assert.equal(h.messages.at(-1).spinnerWavy,true);
+  prepared(h);
+  assert.equal(h.runtime.step,1,'detail options preserve current task progress');
+  h.runtime.prepare({...spinner,spinnerWavy:true,spinnerDeterminate:false});
+  assert.equal(h.runtime.prepared,false,'switching mode must prepare the requested rendering');
+  assert.equal(h.messages.at(-1).spinnerDeterminate,false);
+}
+{
+  const context = {component:'SuccessCheck',dark:false,motion:true,customSuccessIcon:false};
+  const h=harness();h.runtime.action(context);ready(h);prepared(h);
+  h.runtime.prepare({...context,customSuccessIcon:true});
+  assert.equal(h.runtime.prepared,false,'custom icon changes must prepare the requested rendering');
+  assert.equal(h.messages.at(-1).customSuccessIcon,true);
+  prepared(h);
+  assert.equal(h.runtime.step,1,'changing the success icon preserves completion state');
+}
+console.log('PASS queued/repeated input, stale responses, persistent renderer, reduced motion, theme/options state and retry');

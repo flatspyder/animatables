@@ -17,6 +17,51 @@ GALLERY = ROOT / "web-gallery"
 RESOURCES = GALLERY / "src/wasmJsMain/resources"
 OUTPUT = GALLERY / "build/generated/gallery"
 SOURCE = ROOT / "animatables/src/commonMain/kotlin/com/singleoriginapps/animatables"
+CATALOG = ROOT / "catalog/src/main/kotlin/com/singleoriginapps/animatables/catalog"
+
+
+def check_coverage(samples):
+    """Keep both viewers exhaustive as the public component surface grows.
+
+    AnimatablesMotion is a scope, exercised by each viewer's global motion control,
+    rather than an individual visual sample. Every other public composable needs a
+    registered sample and reachable dispatch in both viewers.
+    """
+    public = set()
+    for source in SOURCE.glob("*.kt"):
+        public.update(re.findall(r"@Composable\s+public fun\s+(?:<[^>]+>\s*)?(\w+)\(", source.read_text()))
+    expected = public - {"AnimatablesMotion"}
+    registered = {sample['id'] for sample in samples}
+    if len(registered) != len(samples):
+        raise ValueError("Duplicate gallery component")
+    if expected != registered:
+        raise ValueError(f"Gallery coverage: missing={sorted(expected - registered)}, unknown={sorted(registered - expected)}")
+
+    screen = (CATALOG / "CatalogScreen.kt").read_text()
+    android = "\n".join(path.read_text() for path in CATALOG.glob("*.kt"))
+    web = (GALLERY / "src/wasmJsMain/kotlin/Gallery.kt").read_text()
+    dispatch = []
+    for match in re.finditer(r'\bfun\s+(?:DemoContent|MotionEffectDemo)\([^)]*\)\s*\{', android):
+        depth, end = 1, match.end()
+        while depth and end < len(android):
+            depth += (android[end] == '{') - (android[end] == '}')
+            end += 1
+        dispatch.append(android[match.end():end - 1])
+    android_dispatch = "\n".join(dispatch)
+    # The registry's API field makes an Android card discoverable; a dispatch case
+    # makes its body reachable. Checking calls alone would miss orphaned demos.
+    entries = re.findall(r'Demo\(\s*"([^"]+)"\s*,\s*"[^"]*"\s*,\s*"[^"]*"\s*,\s*Collection\.\w+\s*,\s*"([^"]+)"\s*\)', screen)
+    for name in sorted(expected):
+        ids = [demo_id for demo_id, api in entries if api == name]
+        if not ids or not any(re.search(r'"' + re.escape(demo_id) + r'"\s*->', android_dispatch) for demo_id in ids):
+            raise ValueError(f"Android catalog needs a registered, reachable demo for {name}")
+        if not re.search(r'\b' + re.escape(name) + r'\(', android):
+            raise ValueError(f"Android catalog does not call {name}")
+        if not re.search(r'"' + re.escape(name) + r'"\s*->', web) or not re.search(r'\b' + re.escape(name) + r'\(', web):
+            raise ValueError(f"Web viewer needs a dispatch case calling {name}")
+    for viewer, source in (("Android", android), ("Web", web)):
+        if not re.search(r'\bAnimatablesMotion\(', source):
+            raise ValueError(f"{viewer} viewer must exercise the motion preference scope")
 
 
 def preview_hash(name):
@@ -25,7 +70,7 @@ def preview_hash(name):
 
 
 def declaration(text, name):
-    match = re.search(r"/\*\*((?:(?!/\*\*).)*?)\*/\s*@Composable\s+public fun\s+(?:<[^>]+>\s*)?" + re.escape(name) + r"\(", text, re.S)
+    match = re.search(r"/\*\*((?:(?!/\*\*).)*?)\*/\s*(?:@OptIn\([^)]*\)\s*)?@Composable\s+public fun\s+(?:<[^>]+>\s*)?" + re.escape(name) + r"\(", text, re.S)
     if not match:
         raise ValueError(f"No documented public composable: {name}")
     start = match.end() - 1
@@ -59,8 +104,7 @@ def declaration(text, name):
 
 def generate(output_dir=OUTPUT):
     samples = json.loads((GALLERY / "gallery-samples.json").read_text())
-    if len({s['id'] for s in samples}) != len(samples):
-        raise ValueError("Duplicate gallery component")
+    check_coverage(samples)
     components, cards = [], []
     for i, sample in enumerate(samples):
         name = sample['id']
@@ -72,11 +116,11 @@ def generate(output_dir=OUTPUT):
         components.append(item)
         esc = html.escape
         if (output_dir / f"previews/{name}.jpg").exists():
-            preview = f'<img src="previews/{esc(name)}.jpg" alt="" loading="{"eager" if i < 3 else "lazy"}" width="640" height="360">'
+            preview = f'<img src="previews/{esc(name)}.jpg" alt="{esc(title)} resting-state preview" loading="{"eager" if i < 3 else "lazy"}" width="640" height="360">'
         else:
-            preview = '<span class="preview-placeholder" aria-hidden="true"><span>▷</span>Play to explore</span>'
+            preview = f'<span class="preview-placeholder">{esc(title)} preview</span>'
         cards.append(f'''<article class="component tone-{esc(sample['tone'])}" data-component="{esc(name)}">
-  <div class="card-visual"><button class="card-launch" aria-controls="inline-renderer" data-play="{esc(name)}" aria-label="Play {esc(title)} animation">{preview}<span class="preview-label">COMPOSE PREVIEW</span><span class="open-preview" aria-hidden="true">▶</span></button></div>
+  <div class="card-visual">{preview}<span class="preview-label" aria-hidden="true">COMPOSE PREVIEW</span></div>
   <div class="card-info"><span class="card-meta"><span>{esc(sample['group'])}</span><span class="component-index">{i+1:02d}</span></span><h3>{esc(title)}</h3><p class="component-description">{esc(docs[0])}</p><span class="component-api">{esc(name)}<span aria-hidden="true">()</span></span><div class="card-actions"><button class="card-play" aria-controls="inline-renderer" data-play="{esc(name)}" aria-label="Play {esc(title)} animation">▶ Play</button><button class="card-details" data-details="{esc(name)}" aria-haspopup="dialog" aria-label="API and usage for {esc(title)}">API &amp; usage ↗</button></div></div>
 </article>''')
     template = (GALLERY / "index.template.html").read_text()
@@ -94,8 +138,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="fail when generated resources have drifted")
     parser.add_argument("--check-previews", action="store_true", help="also check the source provenance of captured previews")
+    parser.add_argument("--check-coverage", action="store_true", help="check Android/web component coverage without generating files")
     parser.add_argument("--output-dir", type=Path, default=OUTPUT, help="generated resource directory (default: build/generated/gallery)")
     args = parser.parse_args()
+    if args.check_coverage:
+        check_coverage(json.loads((GALLERY / "gallery-samples.json").read_text()))
+        print("All public components are covered by Android and web viewers.")
+        raise SystemExit(0)
     for path, content in generate(args.output_dir).items():
         if args.check:
             if not path.exists() or path.read_text() != content:

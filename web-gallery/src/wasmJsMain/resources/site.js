@@ -17,9 +17,14 @@ let positionFrame;
 const inlineHost = byId("inline-preview");
 const inlineFrame = byId("inline-renderer");
 const cardContext = item => ({component:item.id, dark, tone:item.tone,
-  initialStep:["SuccessCheck", "CompletionIndicator"].includes(item.id) ? 1 : 0,
+  initialStep:item.id === "SuccessCheck" ? 1 : 0,
+  spinnerWavy:false, spinnerDeterminate:true, customSuccessIcon:false,
   motion:!byId("motion").checked});
+const supportsSuccessIcon = id => ["SuccessCheck", "CompletionSpinner"].includes(id);
 const modalContext = () => ({component:selected.id, dark, tone:"", initialStep:0,
+  spinnerWavy:selected.id === "CompletionSpinner" && byId("spinner-style").value === "wavy",
+  spinnerDeterminate:selected.id !== "CompletionSpinner" || byId("spinner-mode").value === "determinate",
+  customSuccessIcon:supportsSuccessIcon(selected.id) && byId("custom-success-icon").checked,
   motion:dialog.open && !byId("motion").checked});
 const inlinePreview = new window.GalleryPreview(inlineFrame, {
   preparing() {
@@ -109,6 +114,8 @@ function choose(id, navigate = true) {
   }));
   byId("source").href = `https://github.com/flatspyder/animatables/blob/main/${component.source}`;
   byId("replay").hidden = !component.replay;
+  byId("spinner-options").hidden = component.id !== "CompletionSpinner";
+  byId("success-options").hidden = !supportsSuccessIcon(component.id);
   byId("api-details").open = false;
   byId("copy").textContent = "Copy code";
   clearTimeout(copyTimeout);
@@ -238,6 +245,11 @@ byId("advance").addEventListener("click", () => {
   modalPreview.action(modalContext());
 });
 byId("replay").addEventListener("click", () => modalPreview.action(modalContext(), "replay"));
+for (const id of ["spinner-style", "spinner-mode", "custom-success-icon"]) {
+  byId(id).addEventListener("change", () => {
+    if (dialog.open && supportsSuccessIcon(selected.id)) modalPreview.prepare(modalContext());
+  });
+}
 byId("theme").addEventListener("click", () => {
   dark = !dark; explicitTheme = true;
   try { localStorage.setItem("animatables-theme", dark ? "dark" : "light"); } catch { /* Optional persistence. */ }

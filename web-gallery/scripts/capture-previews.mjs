@@ -11,8 +11,8 @@ const resources = path.join(gallery, 'src/wasmJsMain/resources');
 const root = path.dirname(gallery);
 const base = new URL(process.argv[2] || 'http://127.0.0.1:8080/');
 if (!['http:', 'https:'].includes(base.protocol)) throw new Error('Serve the built gallery over HTTP.');
-const { chromium } = await import('playwright');
-const browser = await chromium.launch();
+const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const browser = await chromium.launch({ executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined });
 const output = path.join(gallery, 'build/generated/gallery/previews');
 const manifest = { viewport: { width: 640, height: 360 }, motion: false, components: {} };
 try {

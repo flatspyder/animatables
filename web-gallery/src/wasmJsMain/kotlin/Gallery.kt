@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.BlurEffect
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TileMode
@@ -48,7 +49,6 @@ import androidx.compose.ui.window.ComposeViewport
 import com.singleoriginapps.animatables.AnimatablesMotion
 import com.singleoriginapps.animatables.AnimatedCountBadge
 import com.singleoriginapps.animatables.AnimatedStatusText
-import com.singleoriginapps.animatables.CompletionIndicator
 import com.singleoriginapps.animatables.ExpandableCard
 import com.singleoriginapps.animatables.IconSwap
 import com.singleoriginapps.animatables.LoadingContent
@@ -57,6 +57,8 @@ import com.singleoriginapps.animatables.NumberPopIn
 import com.singleoriginapps.animatables.ReasoningStream
 import com.singleoriginapps.animatables.ShimmerText
 import com.singleoriginapps.animatables.StreamingText
+import com.singleoriginapps.animatables.CompletionSpinner
+import com.singleoriginapps.animatables.CompletionSpinnerStyle
 import com.singleoriginapps.animatables.SuccessCheck
 import com.singleoriginapps.animatables.TextReveal
 import com.singleoriginapps.animatables.TextStateSwap
@@ -71,9 +73,12 @@ private object GalleryState {
     var prepare by mutableStateOf(false)
     var request by mutableIntStateOf(0)
     var tone by mutableStateOf("")
+    var spinnerWavy by mutableStateOf(false)
+    var spinnerDeterminate by mutableStateOf(true)
+    var customSuccessIcon by mutableStateOf(false)
 }
 
-private fun connect(update: (String, Boolean, Boolean, Int, Int, Boolean, Int, String) -> Unit): Unit =
+private fun connect(update: (String, Boolean, Boolean, Int, Int, Boolean, Int, String, Boolean, Boolean, Boolean) -> Unit): Unit =
     js(
         """{
     window.addEventListener('message', event => {
@@ -81,7 +86,8 @@ private fun connect(update: (String, Boolean, Boolean, Int, Int, Boolean, Int, S
         const data = event.data;
         if (data?.type !== 'animatables-config') return;
         update(String(data.component), Boolean(data.dark), Boolean(data.motion), Number(data.replay), Number(data.step),
-            Boolean(data.prepare), Number(data.request) || 0, String(data.tone || ''));
+            Boolean(data.prepare), Number(data.request) || 0, String(data.tone || ''),
+            Boolean(data.spinnerWavy), data.spinnerDeterminate !== false, Boolean(data.customSuccessIcon));
     });
     window.parent.postMessage({type: 'animatables-ready'}, window.location.origin);
 }"""
@@ -96,7 +102,7 @@ private fun reportRendered(component: String, request: Int, prepared: Boolean): 
 )
 
 fun main() {
-    connect { component, dark, motion, replay, step, prepare, request, tone ->
+    connect { component, dark, motion, replay, step, prepare, request, tone, spinnerWavy, spinnerDeterminate, customSuccessIcon ->
         GalleryState.component = component
         GalleryState.dark = dark
         GalleryState.motion = motion
@@ -105,6 +111,9 @@ fun main() {
         GalleryState.prepare = prepare
         GalleryState.request = request
         GalleryState.tone = tone
+        GalleryState.spinnerWavy = spinnerWavy
+        GalleryState.spinnerDeterminate = spinnerDeterminate
+        GalleryState.customSuccessIcon = customSuccessIcon
     }
     ComposeViewport(viewportContainerId = "playground") {
         val dark = GalleryState.dark
@@ -130,7 +139,8 @@ fun main() {
             var warming by remember { mutableStateOf(false) }
             var variant by remember { mutableIntStateOf(0) }
             val preparationKey =
-                "${GalleryState.component}:${GalleryState.dark}:${GalleryState.tone}"
+                "${GalleryState.component}:${GalleryState.dark}:${GalleryState.tone}:" +
+                    "${GalleryState.spinnerWavy}:${GalleryState.spinnerDeterminate}:${GalleryState.customSuccessIcon}"
             AnimatablesMotion(enabled = GalleryState.motion && !warming) {
                 val component = GalleryState.component
                 val request = GalleryState.request
@@ -169,7 +179,10 @@ fun main() {
                                     component,
                                     if (warming) variant else GalleryState.step,
                                     GalleryState.replay,
-                                    preparing = warming
+                                    preparing = warming,
+                                    spinnerWavy = GalleryState.spinnerWavy,
+                                    spinnerDeterminate = GalleryState.spinnerDeterminate,
+                                    customSuccessIcon = GalleryState.customSuccessIcon,
                                 )
                             }
                         }
@@ -181,7 +194,15 @@ fun main() {
 }
 
 @Composable
-private fun Demo(component: String, step: Int, replay: Int, preparing: Boolean = false) {
+private fun Demo(
+    component: String,
+    step: Int,
+    replay: Int,
+    preparing: Boolean = false,
+    spinnerWavy: Boolean = false,
+    spinnerDeterminate: Boolean = true,
+    customSuccessIcon: Boolean = false,
+) {
     val alternate = step % 2 != 0
     val labels = listOf("Ready when you are", "A little more expressive", "Made to feel considered")
     val label = labels[step % labels.size]
@@ -223,17 +244,15 @@ private fun Demo(component: String, step: Int, replay: Int, preparing: Boolean =
             }
 
             "SuccessCheck" -> {
-                SuccessCheck(complete = !alternate, replayKey = replay)
+                SuccessCheck(complete = !alternate, replayKey = replay,
+                    successIcon = if (customSuccessIcon) ({ CustomSuccessIcon() }) else null)
                 Text(
                     if (alternate) "Ready for your next idea" else "All changes saved",
                     style = MaterialTheme.typography.titleLarge
                 )
             }
 
-            "CompletionIndicator" -> {
-                CompletionIndicator(complete = !alternate)
-                Text(if (alternate) "Pending review" else "Review complete")
-            }
+            "CompletionSpinner" -> SpinnerDemo(step, spinnerWavy, spinnerDeterminate, customSuccessIcon)
 
             "TextReveal" -> TextReveal(
                 listOf(
@@ -353,5 +372,45 @@ private fun SampleIcon(saved: Boolean, modifier: Modifier = Modifier) {
                 Offset(size.width * .8f, size.height * .5f), width, StrokeCap.Round
             )
         }
+    }
+}
+
+/** The HTML detail page owns options and playback; the canvas only renders task state. */
+@Composable
+private fun SpinnerDemo(step: Int, wavy: Boolean, determinate: Boolean, customSuccessIcon: Boolean) {
+    val completed = step % 2 != 0
+    val progress = if (completed) 1f else .35f
+    val complete = completed && !determinate
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        CompletionSpinner(
+            progress = if (determinate) ({ progress }) else null,
+            complete = complete,
+            style = if (wavy) CompletionSpinnerStyle.Wavy else CompletionSpinnerStyle.Standard,
+            successIcon = if (customSuccessIcon) ({ CustomSuccessIcon() }) else null,
+        )
+        Text(
+            if (complete || determinate && progress >= 1f) "Task complete"
+            else if (determinate) "${(progress * 100).toInt()}% complete" else "Working…",
+            style = MaterialTheme.typography.titleMedium,
+        )
+    }
+}
+
+/** A caller-supplied icon example; the component provides its size and content color. */
+@Composable
+private fun CustomSuccessIcon() {
+    val color = LocalContentColor.current
+    Canvas(Modifier.fillMaxSize()) {
+        val icon = Path().apply {
+            moveTo(size.width * .5f, 0f)
+            lineTo(size.width, size.height * .5f)
+            lineTo(size.width * .5f, size.height)
+            lineTo(0f, size.height * .5f)
+            close()
+        }
+        drawPath(icon, color)
     }
 }

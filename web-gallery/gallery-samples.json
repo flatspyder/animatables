@@ -27,9 +27,17 @@
     "id": "SuccessCheck",
     "group": "Feedback",
     "action": "Toggle completion",
-    "code": "SuccessCheck(complete = complete, replayKey = eventId)",
+    "code": "SuccessCheck(\n    complete = complete,\n    modifier = Modifier.size(32.dp),\n    replayKey = eventId,\n)",
     "tone": "yellow",
     "replay": true
+  },
+  {
+    "id": "CompletionSpinner",
+    "group": "Feedback",
+    "action": "Toggle completion",
+    "code": "CompletionSpinner(\n    progress = { progress },\n    complete = complete,\n    style = CompletionSpinnerStyle.Wavy,\n)",
+    "tone": "green",
+    "replay": false
   },
   {
     "id": "TextReveal",
@@ -109,14 +117,6 @@
     "action": "Toggle loading",
     "code": "LoadingContent(\n    loading = loading,\n    placeholder = { CollectionPlaceholder() },\n) { CollectionContent() }",
     "tone": "lilac",
-    "replay": false
-  },
-  {
-    "id": "CompletionIndicator",
-    "group": "Feedback",
-    "action": "Toggle completion",
-    "code": "CompletionIndicator(complete = complete)",
-    "tone": "green",
     "replay": false
   }
 ]

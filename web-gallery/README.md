@@ -41,10 +41,14 @@ Generate or verify the component content directly:
 ```sh
 python3 web-gallery/scripts/generate-gallery.py
 python3 web-gallery/scripts/generate-gallery.py --check
+python3 web-gallery/scripts/generate-gallery.py --check-coverage
 ```
 
-The extractor handles the documented public composables used by this gallery and fails on missing
-declarations. It is not a general Kotlin parser.
+Both gallery generation and Android `preBuild` check that every public visual composable has web
+sample metadata, a web dispatch case, and a registered, reachable Android demo. `AnimatablesMotion`
+is exercised by each viewer's global motion control. Adding a component requires adding both demos.
+The extractor handles this repository's documented public composables; it is not a general Kotlin
+parser.
 
 ## Generate static card captures
 
@@ -63,6 +67,9 @@ python3 web-gallery/scripts/generate-gallery.py --check --check-previews
 The script writes to `build/generated/gallery/previews/`. The second build includes those images in
 the distribution. A clean build removes captures; regenerate them when needed for deployment. None
 of the npm installation files or browser captures belongs in Git.
+
+To reuse an existing browser-tool installation, set `PLAYWRIGHT_MODULE` to its `index.mjs` path and
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE` to the Chromium executable instead of installing another copy.
 
 The renderer's standalone capture route is `playground.html?component=NumberPopIn&motion=false`.
 Capture at 640 × 360 CSS pixels and device scale 1, after
@@ -85,10 +92,17 @@ setup links remain available if the live renderer cannot start.
 ```sh
 ./gradlew :web-gallery:testWasmTransfer :web-gallery:testPreviewRuntime
 ./gradlew :animatables:jvmTest :unicode-tests:wasmJsNodeTest
+python3 web-gallery/scripts/test-gallery-coverage.py
+node web-gallery/scripts/test-viewer-controls.mjs http://127.0.0.1:8080/
 ```
 
 These check source behavior and loading contracts. Assess motion performance on representative
 hardware with an optimized build.
+
+The optional browser check uses the capture script's Playwright setup and overrides. It checks
+visible pixels after repeated actions in every component, four complete text/icon cycles through
+both card and detail controls, and the spinner's native detail-page options. Verification captures
+are written beneath `build/generated/gallery/verification/`.
 
 ## Static hosting
 

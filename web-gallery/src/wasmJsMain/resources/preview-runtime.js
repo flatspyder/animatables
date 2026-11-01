@@ -15,7 +15,9 @@ window.GalleryPreview = class GalleryPreview {
     this.replay = 0;
     window.addEventListener("message", event => this.receive(event));
   }
-  key(context) { return `${context.component}:${context.dark}:${context.tone || ""}`; }
+  key(context) {
+    return `${context.component}:${context.dark}:${context.tone || ""}:${!!context.spinnerWavy}:${context.spinnerDeterminate !== false}:${!!context.customSuccessIcon}`;
+  }
   load() {
     if (this.frame.hasAttribute("src") && !this.failed) return;
     this.failed = false;
