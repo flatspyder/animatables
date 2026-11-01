@@ -1,0 +1,4 @@
+interface:
+  display_name: "Animatables Compose"
+  short_description: "Use polished mobile motion with Animatables"
+  default_prompt: "Use $animatables-compose to add an appropriate Animatables component to this Compose screen."

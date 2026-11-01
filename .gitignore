@@ -1,0 +1,47 @@
+# Gradle and Kotlin build state
+.gradle/
+.kotlin/
+**/build/
+/out/
+
+# Android Studio and local SDK configuration
+.idea/
+*.iml
+local.properties
+.DS_Store
+
+# Android native build outputs
+.cxx/
+.externalNativeBuild/
+*.apk
+*.aab
+
+# Local signing configuration and keys
+*.jks
+*.keystore
+keystore.properties
+
+# Generated previews, recordings, and other visual evidence
+/captures/
+
+# Private working notes, plans and local verification evidence
+/.local/
+/docs/
+/AGENTS.md
+/MOTION.md
+/web-gallery/performance-samples.json
+
+# Gallery output belongs under build/, never in the source resource tree
+/web-gallery/src/wasmJsMain/resources/index.html
+/web-gallery/src/wasmJsMain/resources/components-data.js
+/web-gallery/src/wasmJsMain/resources/preview-sources.json
+/web-gallery/src/wasmJsMain/resources/previews/
+/web-gallery/src/wasmJsMain/resources/fonts/
+/web-gallery/src/wasmJsMain/resources/profile.html
+/web-gallery/src/wasmJsMain/resources/preview-profile.js
+
+# Optional browser tooling for regenerating gallery snapshots
+/web-gallery/node_modules/
+
+# Keep the Gradle wrapper executable even if a global ignore excludes JARs.
+!/gradle/wrapper/gradle-wrapper.jar
