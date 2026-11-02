@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.singleoriginapps.animatables.catalog.screens.AnimatablesCatalog
 
 class MainActivity : ComponentActivity() {
     private var requestedEffect by mutableStateOf<String?>(null)

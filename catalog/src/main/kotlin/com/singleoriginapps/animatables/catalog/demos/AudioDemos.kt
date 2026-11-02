@@ -1,16 +1,12 @@
-package com.singleoriginapps.animatables.catalog
+package com.singleoriginapps.animatables.catalog.demos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -35,67 +31,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.singleoriginapps.animatables.AnimatablesMotion
-import com.singleoriginapps.animatables.AsyncActionButton
-import com.singleoriginapps.animatables.AsyncActionState
 import com.singleoriginapps.animatables.AudioActivityRing
 import com.singleoriginapps.animatables.AudioLevelIcon
 import com.singleoriginapps.animatables.AudioWaveform
+import com.singleoriginapps.animatables.catalog.CatalogTheme
 import com.singleoriginapps.animatables.samples.MaterialSymbols
-import com.singleoriginapps.animatables.samples.RefreshSample
 import com.singleoriginapps.animatables.samples.SpeechSamples
 import com.singleoriginapps.animatables.samples.SpeechWaveformSamples
 import kotlinx.coroutines.delay
-
-@Composable
-internal fun AsyncActionDemo() {
-    var state by rememberSaveable { mutableStateOf(AsyncActionState.Idle) }
-    var fail by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(state) {
-        if (state == AsyncActionState.Working) {
-            delay(1400)
-            state = if (fail) AsyncActionState.Error else AsyncActionState.Success
-        }
-    }
-    Column(
-        Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        AsyncActionButton(
-            state,
-            onClick = {
-                state =
-                    if (state == AsyncActionState.Working) AsyncActionState.Idle else AsyncActionState.Working
-            },
-            label = "Save changes",
-            modifier = Modifier.width(240.dp),
-            workingLabel = "Saving · cancel",
-            successLabel = "Changes saved",
-            errorLabel = "Retry save"
-        )
-        if (state == AsyncActionState.Error) Text(
-            "Couldn’t save. Your changes are still here.",
-            color = MaterialTheme.colorScheme.error
-        )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Checkbox(fail, { fail = it })
-            Text("Simulate failure", style = MaterialTheme.typography.labelMedium)
-        }
-        TextButton(onClick = { state = AsyncActionState.Idle }) { Text("Reset") }
-    }
-}
-
-@Composable
-internal fun RefreshRecoveryDemo() = RefreshSample()
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 internal fun AudioDemo(kind: String) {
     var active by rememberSaveable { mutableStateOf(true) }
     var playing by rememberSaveable { mutableStateOf(true) }
-    var sample by rememberSaveable { mutableIntStateOf(if (kind == "waveform") SpeechWaveformSamples.InitialFrame else SpeechSamples.InitialFrame) }
+    var sample by rememberSaveable {
+        mutableIntStateOf(
+            if (kind == "waveform") SpeechWaveformSamples.InitialFrame else SpeechSamples.InitialFrame
+        )
+    }
     val inspecting = LocalInspectionMode.current
     LaunchedEffect(playing, active, inspecting) {
         while (playing && active && !inspecting) {
-            delay(if (kind == "waveform") SpeechWaveformSamples.FrameMillis else SpeechSamples.FrameMillis); sample++
+            delay(
+                (if (kind == "waveform") SpeechWaveformSamples.FrameMillis else SpeechSamples.FrameMillis).milliseconds
+            )
+            sample++
         }
     }
     val level = SpeechSamples.level(sample)
@@ -103,30 +64,38 @@ internal fun AudioDemo(kind: String) {
     val activityLabel = if (!active) "Sample muted" else if (playing) {
         if (kind == "waveform") "Speech sample" else "Simulated voice"
     } else "Sample paused"
+
     Column(
-        Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
+        Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         when (kind) {
             "waveform" -> AudioWaveform(
-                levels, active, Modifier
+                levels,
+                active,
+                Modifier
                     .fillMaxWidth()
                     .height(88.dp),
                 label = activityLabel
             )
 
             "icon" -> AudioLevelIcon(
-                level, active, color = MaterialTheme.colorScheme.primary,
+                level,
+                active,
+                color = MaterialTheme.colorScheme.primary,
                 label = activityLabel
             )
 
             else -> AudioActivityRing(level, active) {
                 FilledIconButton(
-                    onClick = { active = !active }, modifier = Modifier
+                    onClick = { active = !active },
+                    modifier = Modifier
                         .size(56.dp)
                         .semantics {
                             contentDescription = if (active) "Mute sample" else "Unmute sample"
-                        }) {
+                        }
+                ) {
                     RecordingSymbol(active)
                 }
             }
@@ -137,10 +106,15 @@ internal fun AudioDemo(kind: String) {
             style = MaterialTheme.typography.bodySmall
         )
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilledTonalButton(onClick = { playing = !playing; if (playing) active = true }) {
+            FilledTonalButton(onClick = {
+                playing = !playing
+                if (playing) active = true
+            }) {
                 Text(if (playing) "Pause sample" else "Play sample")
             }
-            TextButton(onClick = { active = !active }) { Text(if (active) "Mute" else "Unmute") }
+            TextButton(onClick = { active = !active }) {
+                Text(if (active) "Mute" else "Unmute")
+            }
         }
     }
 }
@@ -149,26 +123,9 @@ internal fun AudioDemo(kind: String) {
 private fun RecordingSymbol(recording: Boolean) {
     Icon(
         if (recording) MaterialSymbols.Mic else MaterialSymbols.MicOff,
-        contentDescription = null, modifier = Modifier.size(24.dp)
+        contentDescription = null,
+        modifier = Modifier.size(24.dp)
     )
-}
-
-@Preview(name = "Actions and recovery", widthDp = 412, heightDp = 660, showBackground = true)
-@Composable
-private fun ActionRecoveryPreview() {
-    CatalogTheme(false) {
-        AnimatablesMotion(false) {
-            Column(
-                Modifier
-                    .widthIn(max = 380.dp)
-                    .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                AsyncActionDemo()
-                RefreshRecoveryDemo()
-            }
-        }
-    }
 }
 
 @Preview(name = "Audio presentations", widthDp = 412, heightDp = 750, showBackground = true)
@@ -186,19 +143,6 @@ private fun AudioPresentationsPreview() {
 }
 
 @Preview(
-    name = "Actions large text RTL",
-    widthDp = 412,
-    heightDp = 850,
-    fontScale = 1.5f,
-    locale = "ar",
-    showBackground = true
-)
-@Composable
-private fun ActionRecoveryRtlPreview() {
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) { ActionRecoveryPreview() }
-}
-
-@Preview(
     name = "Audio large text RTL",
     widthDp = 412,
     heightDp = 1000,
@@ -208,5 +152,7 @@ private fun ActionRecoveryRtlPreview() {
 )
 @Composable
 private fun AudioPresentationsRtlPreview() {
-    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) { AudioPresentationsPreview() }
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+        AudioPresentationsPreview()
+    }
 }

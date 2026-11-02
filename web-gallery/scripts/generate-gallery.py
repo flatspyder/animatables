@@ -38,8 +38,9 @@ def check_coverage(samples):
     if expected != registered:
         raise ValueError(f"Gallery coverage: missing={sorted(expected - registered)}, unknown={sorted(registered - expected)}")
 
-    screen = (CATALOG / "CatalogScreen.kt").read_text()
-    android = "\n".join(path.read_text() for path in CATALOG.glob("*.kt"))
+    registry_file = CATALOG / "model/DemoRegistry.kt"
+    screen = registry_file.read_text() if registry_file.exists() else (CATALOG / "CatalogScreen.kt").read_text()
+    android = "\n".join(path.read_text() for path in CATALOG.rglob("*.kt"))
     shared = "\n".join(path.read_text() for path in SHARED.glob("*.kt"))
     web = (GALLERY / "src/wasmJsMain/kotlin/Gallery.kt").read_text()
     dispatch = []
