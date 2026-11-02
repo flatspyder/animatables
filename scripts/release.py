@@ -61,15 +61,24 @@ def run(cmd, cwd=None, env=None, check=True):
     return result.returncode
 
 
-def create_bundle_zip(repo_dir: Path, zip_dest: Path):
+def create_bundle_zip(repo_dir: Path, zip_dest: Path, version: str):
     print(f"\n==> Packaging Maven Central bundle: {zip_dest}")
     if zip_dest.exists():
         zip_dest.unlink()
+    matched_count = 0
     with zipfile.ZipFile(zip_dest, "w", zipfile.ZIP_DEFLATED) as zf:
         for file in repo_dir.rglob("*"):
             if file.is_file():
+                # Sonatype Central requires:
+                # 1. No maven-metadata.xml files in the bundle
+                # 2. Only release version artifacts (no SNAPSHOTs or unrelated versions)
+                if "maven-metadata.xml" in file.name:
+                    continue
+                if f"/{version}/" not in file.as_posix():
+                    continue
                 zf.write(file, arcname=file.relative_to(repo_dir))
-    print(f"Bundle created ({zip_dest.stat().st_size:,} bytes).")
+                matched_count += 1
+    print(f"Bundle created with {matched_count} files ({zip_dest.stat().st_size:,} bytes).")
 
 
 def main():
@@ -150,7 +159,7 @@ def main():
 
     repo_dir = root / "build" / "repo"
     bundle_zip = root / "build" / f"animatables-{version}-bundle.zip"
-    create_bundle_zip(repo_dir, bundle_zip)
+    create_bundle_zip(repo_dir, bundle_zip, version)
 
     # 7. Upload to Sonatype Central Portal (Optional)
     print("\n-----------------------------------------------------------")

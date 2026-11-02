@@ -61,6 +61,10 @@ kotlin {
     }
 }
 
+val javadocJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("javadoc")
+}
+
 publishing {
     repositories {
         maven {
@@ -69,6 +73,7 @@ publishing {
         }
     }
     publications.withType<MavenPublication>().configureEach {
+        artifact(javadocJar)
         pom {
             name.set("Animatables")
             description.set("Considered Material 3 Expressive motion for Compose Multiplatform")

@@ -1,6 +1,8 @@
 # Animatables
 
-Theme-aware Compose Multiplatform components for readable state changes and Material 3 Expressive motion. The library uses the package `com.singleoriginapps.animatables`. No public Maven artifact is currently available; build from source or publish to a local Maven repository.
+Theme-aware Compose Multiplatform components for readable state changes and Material 3 Expressive motion. The library uses the package `com.singleoriginapps.animatables`.
+
+Explore the live **[Interactive Web Gallery](https://flatspyder.github.io/animatables/)** to test and preview all components directly in your browser.
 
 ## Components
 
@@ -78,9 +80,26 @@ The Android catalog depends directly on `:animatables`:
 ./gradlew :catalog:installDebug
 ```
 
-## Local Maven integration
+## Maven dependency
 
-Publish the library and source artifacts:
+### Maven Central
+
+Animatables is published to Maven Central under `com.singleoriginapps`. Ensure `mavenCentral()` is declared in your repositories:
+
+```kotlin
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Add to Android dependencies or KMP commonMain
+    implementation("com.singleoriginapps:animatables:0.1.0-alpha02")
+}
+```
+
+### Local Maven integration (Source & Snapshots)
+
+To publish and test snapshot builds locally from source:
 
 ```sh
 ./gradlew :animatables:publishAllPublicationsToProjectLocalRepository
@@ -89,21 +108,31 @@ Publish the library and source artifacts:
 Add the generated repository directory to the consuming application's repository configuration:
 
 ```kotlin
-maven {
-    url = uri("/absolute/path/to/Animatables/build/repo")
-    content { includeGroup("com.singleoriginapps") }
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            url = uri("/absolute/path/to/Animatables/build/repo")
+            content { includeGroup("com.singleoriginapps") }
+        }
+    }
 }
 ```
 
 Then add the dependency to the consuming Android module or KMP `commonMain` source set:
 
 ```kotlin
-implementation("com.singleoriginapps:animatables:0.1.0-SNAPSHOT")
+dependencies {
+    implementation("com.singleoriginapps:animatables:0.1.0-SNAPSHOT")
+}
 ```
 
-## Web gallery
+## Web gallery & previews
 
-The [web gallery](web-gallery/README.md) demonstrates the same shared library with interactive cards, state controls, API examples, search, themes and reduced motion.
+Preview the components in action on the live **[GitHub Pages Web Gallery](https://flatspyder.github.io/animatables/)** (or [motion.singleoriginapps.com](https://motion.singleoriginapps.com/) if using the custom domain). The [web gallery](web-gallery/README.md) demonstrates the shared library with interactive cards, state controls, API examples, search, themes and reduced motion directly in your browser.
+
+To run the gallery locally:
 
 ```sh
 ./gradlew :web-gallery:assembleGallery
