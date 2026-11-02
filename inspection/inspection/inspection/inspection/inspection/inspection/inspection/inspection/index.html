@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta content="Explore expressive Compose components. See each component, try real state changes, and find concise API guidance from the Kotlin source."
+          name="description">
+    <meta content="#fff8f4" name="theme-color">
+    <title>Animatables — Compose, with feeling.</title>
+    <link href="mark.svg" rel="icon" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700&amp;family=DM+Sans:wght@400;600&amp;display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&amp;icon_names=arrow_back,arrow_downward,arrow_forward,arrow_upward,auto_awesome,check,close,code,dark_mode,grid_view,north_east,play_arrow,search&amp;display=block"
+          rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <script defer src="components-data.js"></script>
+    <script defer src="preview-runtime.js"></script>
+    <script defer src="site.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#gallery">Skip to components</a>
+<aside aria-label="Quick navigation" class="navigation-rail">
+    <a aria-label="Animatables home" class="rail-mark" href="./"><img alt="" height="44"
+                                                                      src="mark.svg" width="44"></a>
+    <a aria-label="Component gallery" class="rail-link active" href="#gallery">
+        <span aria-hidden="true" class="material-symbols-rounded">grid_view</span>
+        <span>Explore</span></a>
+    <a aria-label="Use in Compose" class="rail-link" href="#use">
+        <span aria-hidden="true" class="material-symbols-rounded">code</span>
+        <span>Get started</span></a>
+    <a aria-label="GitHub repository" class="rail-bottom"
+       href="https://github.com/flatspyder/animatables"><span aria-hidden="true"
+                                                              class="material-symbols-rounded">north_east</span></a>
+</aside>
+<div class="site-body">
+    <header class="site-header"><a class="wordmark" href="./">animatables<span class="wordmark-dot">.</span></a>
+        <nav aria-label="Main navigation"><a class="current" href="#gallery">Components</a><a
+                href="#use">Get started</a><a class="github-link"
+                                              href="https://github.com/flatspyder/animatables">GitHub
+            <span aria-hidden="true" class="material-symbols-rounded">north_east</span></a></nav>
+        <button aria-label="Switch to dark theme" aria-pressed="false"
+                class="icon-button theme-button"
+                id="theme">
+            <span aria-hidden="true" class="material-symbols-rounded">dark_mode</span>
+        </button>
+    </header>
+    <main>
+        <section aria-labelledby="hero-title" class="hero">
+            <div class="hero-copy"><p class="eyebrow"><span aria-hidden="true"
+                                                            class="tiny-flower material-symbols-rounded">auto_awesome</span>
+                COMPOSE,
+                WITH FEELING</p>
+                <h1 id="hero-title">Small details.<br><span>Big difference.</span></h1>
+                <p class="hero-description">Expressive components for the moments between states.<br
+                        class="desktop-break"> Explore the motion. Find your next finishing touch.
+                </p><a class="hero-cta" href="#gallery">Explore components <span aria-hidden="true"
+                                                                                 class="material-symbols-rounded">arrow_downward</span></a><span
+                        class="hero-platform">Android-first · Compose Multiplatform</span></div>
+            <div aria-hidden="true" class="hero-art"><span class="art-orbit"></span><span
+                    class="art-star material-symbols-rounded">auto_awesome</span><span
+                    class="art-type">Aa<span>text, in motion</span></span><span class="art-number">1<span>2</span>3<span
+                    class="art-number-arrow"><span aria-hidden="true"
+                                                   class="material-symbols-rounded">arrow_upward</span></span></span><span
+                    class="art-check"><span aria-hidden="true" class="material-symbols-rounded">check</span></span><span
+                    class="art-caption">A change you can feel.</span></div>
+        </section>
+        <section aria-labelledby="gallery-title" class="gallery" id="gallery">
+            <div class="section-heading">
+                <div class="collection-title"><h2 id="gallery-title">The components<span
+                        class="heading-dot">.</span></h2><span class="total-count">20</span>
+                </div>
+                <p>Real Compose. A little more expressive.</p></div>
+            <div class="collection-toolbar">
+                <div aria-label="Filter by category" class="filters" role="group">
+                    <button aria-pressed="true" data-filter="All">All components <span>20</span>
+                    </button>
+                    <button aria-pressed="false" data-filter="Text">Text <span>6</span>
+                    </button>
+                    <button aria-pressed="false" data-filter="Numbers">Numbers <span>2</span>
+                    </button>
+                    <button aria-pressed="false" data-filter="Feedback">Feedback <span>5</span>
+                    </button>
+                    <button aria-pressed="false" data-filter="Layout">Layout
+                        <span>4</span></button>
+                    <button aria-pressed="false" data-filter="Audio">Audio
+                        <span>3</span></button>
+                </div>
+                <label class="search">
+                    <span aria-hidden="true" class="material-symbols-rounded">search</span>
+                    <input aria-label="Search components" id="search" placeholder="Find a component"
+                           type="search"><kbd aria-hidden="true">/</kbd></label>
+            </div>
+            <div class="collection-status"><p id="result-count" role="status">20
+                components to make your own</p>
+                <div class="collection-options"><label class="switch-label"><input
+                        id="gallery-motion" type="checkbox"><span aria-hidden="true"
+                                                                  class="switch"></span>Reduce
+                    motion</label><span>Play it right on the card ↙</span></div>
+            </div>
+            <div class="component-grid">
+                <article class="component tone-peach" data-component="AsyncActionButton">
+                    <div class="card-visual"><img alt="Async Action Button resting-state preview"
+                                                  height="360"
+                                                  loading="eager"
+                                                  src="previews/AsyncActionButton.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Feedback</span><span
+                            class="component-index">01</span></span>
+                        <h3>Async Action Button</h3>
+                        <p class="component-description">A native Material button with coordinated
+                            working, success and retry feedback.</p><span class="component-api">AsyncActionButton<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Async Action Button animation"
+                                    class="card-play"
+                                    data-play="AsyncActionButton"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Async Action Button"
+                                    class="card-details"
+                                    data-details="AsyncActionButton">API &amp;
+                                usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-green" data-component="RefreshableContent">
+                    <div class="card-visual"><img alt="Refreshable Content resting-state preview"
+                                                  height="360"
+                                                  loading="eager"
+                                                  src="previews/RefreshableContent.jpg" width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Layout</span><span
+                            class="component-index">02</span></span>
+                        <h3>Refreshable Content</h3>
+                        <p class="component-description">Initial loading, empty/error recovery and
+                            refresh feedback that retains existing content.</p><span
+                                class="component-api">RefreshableContent<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Refreshable Content animation"
+                                    class="card-play"
+                                    data-play="RefreshableContent"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Refreshable Content"
+                                    class="card-details"
+                                    data-details="RefreshableContent">API &amp;
+                                usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-lilac" data-component="AudioWaveform">
+                    <div class="card-visual"><img alt="Audio Waveform resting-state preview"
+                                                  height="360"
+                                                  loading="eager" src="previews/AudioWaveform.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Audio</span><span
+                            class="component-index">03</span></span>
+                        <h3>Audio Waveform</h3>
+                        <p class="component-description">A large, centered bar waveform driven by
+                            caller-supplied normalized levels.</p><span class="component-api">AudioWaveform<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Audio Waveform animation"
+                                    class="card-play"
+                                    data-play="AudioWaveform"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Audio Waveform"
+                                    class="card-details"
+                                    data-details="AudioWaveform">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-yellow" data-component="AudioLevelIcon">
+                    <div class="card-visual"><img alt="Audio Level Icon resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/AudioLevelIcon.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Audio</span><span
+                            class="component-index">04</span></span>
+                        <h3>Audio Level Icon</h3>
+                        <p class="component-description">A compact five-bar audio icon, sized to 24
+                            dp by default, driven by normalized level.</p><span
+                                class="component-api">AudioLevelIcon<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Audio Level Icon animation"
+                                    class="card-play"
+                                    data-play="AudioLevelIcon"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Audio Level Icon"
+                                    class="card-details"
+                                    data-details="AudioLevelIcon">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-peach" data-component="AudioActivityRing">
+                    <div class="card-visual"><img alt="Audio Activity Ring resting-state preview"
+                                                  height="360"
+                                                  loading="lazy"
+                                                  src="previews/AudioActivityRing.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Audio</span><span
+                            class="component-index">05</span></span>
+                        <h3>Audio Activity Ring</h3>
+                        <p class="component-description">A level-reactive halo around an existing
+                            circular recording button supplied as content.</p><span
+                                class="component-api">AudioActivityRing<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Audio Activity Ring animation"
+                                    class="card-play"
+                                    data-play="AudioActivityRing"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Audio Activity Ring"
+                                    class="card-details"
+                                    data-details="AudioActivityRing">API &amp;
+                                usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-peach" data-component="NumberPopIn">
+                    <div class="card-visual"><img alt="Number Pop In resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/NumberPopIn.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Numbers</span><span
+                            class="component-index">06</span></span>
+                        <h3>Number Pop In</h3>
+                        <p class="component-description">Rolls changed digits in stable place-value
+                            columns, with a predictable horizontal anchor.</p><span
+                                class="component-api">NumberPopIn<span aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Number Pop In animation"
+                                    class="card-play"
+                                    data-play="NumberPopIn"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Number Pop In"
+                                    class="card-details"
+                                    data-details="NumberPopIn">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-lilac" data-component="TextStateSwap">
+                    <div class="card-visual"><img alt="Text State Swap resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/TextStateSwap.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Text</span><span
+                            class="component-index">07</span></span>
+                        <h3>Text State Swap</h3>
+                        <p class="component-description">Replaces a short label with an upward
+                            handoff: outgoing text rises and softens while the next label rises into
+                            focus from below after the outgoing label clears. replayKey can replay
+                            the handoff without changing text.</p><span class="component-api">TextStateSwap<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Text State Swap animation"
+                                    class="card-play"
+                                    data-play="TextStateSwap"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Text State Swap"
+                                    class="card-details"
+                                    data-details="TextStateSwap">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-green" data-component="IconSwap">
+                    <div class="card-visual"><img alt="Icon Swap resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/IconSwap.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Feedback</span><span
+                            class="component-index">08</span></span>
+                        <h3>Icon Swap</h3>
+                        <p class="component-description">Replaces an icon through overlapping
+                            centred scale and soft-focus transitions.</p><span
+                                class="component-api">IconSwap<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Icon Swap animation"
+                                    class="card-play" data-play="IconSwap"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog" aria-label="API and usage for Icon Swap"
+                                    class="card-details" data-details="IconSwap">
+                                API &amp; usage <span aria-hidden="true"
+                                                      class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-yellow" data-component="SuccessCheck">
+                    <div class="card-visual"><img alt="Success Check resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/SuccessCheck.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Feedback</span><span
+                            class="component-index">09</span></span>
+                        <h3>Success Check</h3>
+                        <p class="component-description">A success mark arriving upward through
+                            fade, rotation and soft focus, then a drawn check.</p><span
+                                class="component-api">SuccessCheck<span aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Success Check animation"
+                                    class="card-play"
+                                    data-play="SuccessCheck"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Success Check"
+                                    class="card-details"
+                                    data-details="SuccessCheck">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-green" data-component="CompletionSpinner">
+                    <div class="card-visual"><img alt="Completion Spinner resting-state preview"
+                                                  height="360"
+                                                  loading="lazy"
+                                                  src="previews/CompletionSpinner.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Feedback</span><span
+                            class="component-index">10</span></span>
+                        <h3>Completion Spinner</h3>
+                        <p class="component-description">Native Material progress followed by the
+                            same success entrance as SuccessCheck.</p><span class="component-api">CompletionSpinner<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Completion Spinner animation"
+                                    class="card-play"
+                                    data-play="CompletionSpinner"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Completion Spinner"
+                                    class="card-details"
+                                    data-details="CompletionSpinner">API &amp;
+                                usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-lilac" data-component="TextReveal">
+                    <div class="card-visual"><img alt="Text Reveal resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/TextReveal.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Text</span><span
+                            class="component-index">11</span></span>
+                        <h3>Text Reveal</h3>
+                        <p class="component-description">Reveals a short group of related lines with
+                            a staggered rise, fade, and soft focus resolve.</p><span
+                                class="component-api">TextReveal<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Text Reveal animation"
+                                    class="card-play" data-play="TextReveal">
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Text Reveal"
+                                    class="card-details"
+                                    data-details="TextReveal">API &amp; usage <span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-peach" data-component="ShimmerText">
+                    <div class="card-visual"><img alt="Shimmer Text resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/ShimmerText.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Text</span><span
+                            class="component-index">12</span></span>
+                        <h3>Shimmer Text</h3>
+                        <p class="component-description">Sweeps a narrow highlight across the
+                            glyphs, without moving the label or painting its bounds.</p><span
+                                class="component-api">ShimmerText<span aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Shimmer Text animation"
+                                    class="card-play"
+                                    data-play="ShimmerText"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Shimmer Text"
+                                    class="card-details"
+                                    data-details="ShimmerText">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-yellow" data-component="ThinkingStates">
+                    <div class="card-visual"><img alt="Thinking States resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/ThinkingStates.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Text</span><span
+                            class="component-index">13</span></span>
+                        <h3>Thinking States</h3>
+                        <p class="component-description">A truthful activity label combining a
+                            finite glyph highlight with the text-state handoff.</p><span
+                                class="component-api">ThinkingStates<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Thinking States animation"
+                                    class="card-play"
+                                    data-play="ThinkingStates"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Thinking States"
+                                    class="card-details"
+                                    data-details="ThinkingStates">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-green" data-component="StreamingText">
+                    <div class="card-visual"><img alt="Streaming Text resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/StreamingText.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Text</span><span
+                            class="component-index">14</span></span>
+                        <h3>Streaming Text</h3>
+                        <p class="component-description">Displays real caller-supplied text with
+                            overlapping ordered word fades, without travel or soft focus.</p><span
+                                class="component-api">StreamingText<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Streaming Text animation"
+                                    class="card-play"
+                                    data-play="StreamingText"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Streaming Text"
+                                    class="card-details"
+                                    data-details="StreamingText">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-lilac" data-component="ReasoningStream">
+                    <div class="card-visual"><img alt="Reasoning Stream resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/ReasoningStream.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Text</span><span
+                            class="component-index">15</span></span>
+                        <h3>Reasoning Stream</h3>
+                        <p class="component-description">Scrolls a compact window of actual
+                            user-visible activity entries upward as new entries arrive.</p><span
+                                class="component-api">ReasoningStream<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Reasoning Stream animation"
+                                    class="card-play"
+                                    data-play="ReasoningStream"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Reasoning Stream"
+                                    class="card-details"
+                                    data-details="ReasoningStream">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-peach" data-component="ExpandableCard">
+                    <div class="card-visual"><img alt="Expandable Card resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/ExpandableCard.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Layout</span><span
+                            class="component-index">16</span></span>
+                        <h3>Expandable Card</h3>
+                        <p class="component-description">A state-hoisted disclosure card with a
+                            full-width, keyboard-accessible header.</p><span class="component-api">ExpandableCard<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Expandable Card animation"
+                                    class="card-play"
+                                    data-play="ExpandableCard"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Expandable Card"
+                                    class="card-details"
+                                    data-details="ExpandableCard">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-yellow" data-component="MotionContent">
+                    <div class="card-visual"><img alt="Motion Content resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/MotionContent.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Layout</span><span
+                            class="component-index">17</span></span>
+                        <h3>Motion Content</h3>
+                        <p class="component-description">Hands off a small in-place state change
+                            with a fade and a short vertical-only entrance. Content stays centred as
+                            surrounding layout reflows to its new size.</p><span
+                                class="component-api">MotionContent<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Motion Content animation"
+                                    class="card-play"
+                                    data-play="MotionContent"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Motion Content"
+                                    class="card-details"
+                                    data-details="MotionContent">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-green" data-component="AnimatedStatusText">
+                    <div class="card-visual"><img alt="Animated Status Text resting-state preview"
+                                                  height="360"
+                                                  loading="lazy"
+                                                  src="previews/AnimatedStatusText.jpg" width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Feedback</span><span
+                            class="component-index">18</span></span>
+                        <h3>Animated Status Text</h3>
+                        <p class="component-description">An occasional status-label handoff,
+                            delegating to TextStateSwap with Material body typography.</p><span
+                                class="component-api">AnimatedStatusText<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Animated Status Text animation"
+                                    class="card-play"
+                                    data-play="AnimatedStatusText"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Animated Status Text"
+                                    class="card-details"
+                                    data-details="AnimatedStatusText">API &amp;
+                                usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-yellow" data-component="AnimatedCountBadge">
+                    <div class="card-visual"><img alt="Animated Count Badge resting-state preview"
+                                                  height="360"
+                                                  loading="lazy"
+                                                  src="previews/AnimatedCountBadge.jpg" width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Numbers</span><span
+                            class="component-index">19</span></span>
+                        <h3>Animated Count Badge</h3>
+                        <p class="component-description">Material badge with a short directional
+                            count roll and smoothly resizing capsule, including a visible zero
+                            state.</p><span class="component-api">AnimatedCountBadge<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Animated Count Badge animation"
+                                    class="card-play"
+                                    data-play="AnimatedCountBadge"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Animated Count Badge"
+                                    class="card-details"
+                                    data-details="AnimatedCountBadge">API &amp;
+                                usage <span aria-hidden="true" class="material-symbols-rounded">north_east</span>
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                <article class="component tone-lilac" data-component="LoadingContent">
+                    <div class="card-visual"><img alt="Loading Content resting-state preview"
+                                                  height="360"
+                                                  loading="lazy" src="previews/LoadingContent.jpg"
+                                                  width="640"><span
+                            aria-hidden="true" class="preview-label">COMPOSE PREVIEW</span></div>
+                    <div class="card-info"><span class="card-meta"><span>Layout</span><span
+                            class="component-index">20</span></span>
+                        <h3>Loading Content</h3>
+                        <p class="component-description">Delays a structural placeholder, holds it
+                            long enough to read, then crossfades to content.</p><span
+                                class="component-api">LoadingContent<span
+                                aria-hidden="true">()</span></span>
+                        <div class="card-actions">
+                            <button aria-controls="inline-renderer"
+                                    aria-label="Play Loading Content animation"
+                                    class="card-play"
+                                    data-play="LoadingContent"><span
+                                    aria-hidden="true"
+                                    class="material-symbols-rounded">play_arrow</span> Play
+                            </button>
+                            <button aria-haspopup="dialog"
+                                    aria-label="API and usage for Loading Content"
+                                    class="card-details"
+                                    data-details="LoadingContent">API &amp; usage
+                                <span aria-hidden="true"
+                                      class="material-symbols-rounded">north_east</span></button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            <div class="empty" hidden id="empty"><span aria-hidden="true"
+                                                       class="material-symbols-rounded">search</span>
+                <h3>No components found</h3>
+                <p>Try another name or explore the full collection.</p>
+                <button class="primary" id="clear-search">Show all components</button>
+            </div>
+            <p class="collection-note">Play any card to try the real Compose animation. Open API
+                &amp; usage for examples and details.</p>
+        </section>
+        <section aria-labelledby="usage-title" class="usage" id="use">
+            <div class="usage-intro"><span class="eyebrow">LESS BOILERPLATE. MORE CHARACTER.</span>
+                <h2 id="usage-title">Your state.<br>Our little flourish.</h2>
+                <p>Keep your familiar Compose patterns. You own the state and events; components
+                    inherit your Material theme.</p><a class="text-link"
+                                                       href="https://github.com/flatspyder/animatables#reuse-in-a-local-app">Set
+                    up from source <span aria-hidden="true" class="material-symbols-rounded">north_east</span></a><span
+                        class="snapshot-label">Development snapshot · No public Maven release yet</span>
+            </div>
+            <div class="usage-code">
+                <div class="code-label"><span class="code-dot"></span> A LITTLE KOTLIN GOES A LONG
+                    WAY <span>.kt</span></div>
+                <pre><code><span class="syntax-keyword">var</span> expanded <span
+                        class="syntax-keyword">by</span> rememberSaveable {
+    mutableStateOf(<span class="syntax-keyword">false</span>)
+}
+
+<span class="syntax-call">ExpandableCard</span>(
+    expanded = expanded,
+    onExpandedChange = { expanded = it },
+    title = <span class="syntax-string">"A little more detail"</span>,
+) {
+    Text(<span class="syntax-string">"Right here when you need it."</span>)
+}</code></pre>
+                <p>State-hoisted. Theme-aware. Readable with motion disabled.</p></div>
+        </section>
+    </main>
+    <footer><a class="wordmark" href="./">animatables<span class="wordmark-dot">.</span></a>
+        <p>Small details, considered. By Single Origin Apps.</p><a
+                href="https://github.com/flatspyder/animatables">Made for Compose <span
+                aria-hidden="true" class="material-symbols-rounded">north_east</span></a></footer>
+</div>
+<div aria-hidden="true" class="inline-preview" id="inline-preview">
+    <iframe data-src="playground.html" id="inline-renderer" tabindex="-1"
+            title="Interactive component card"></iframe>
+    <span aria-hidden="true" class="inline-live-label">● LIVE COMPOSE</span></div>
+<p class="sr-only" id="preview-status" role="status"></p>
+<dialog aria-describedby="selected-description" aria-labelledby="selected-name"
+        id="component-dialog">
+    <div class="dialog-top"><span class="eyebrow">THE PLAYGROUND <span
+            id="selected-position"></span></span>
+        <div class="dialog-navigation">
+            <button aria-label="Previous component" class="icon-button" id="previous"><span
+                    aria-hidden="true" class="material-symbols-rounded">arrow_back</span></button>
+            <button aria-label="Next component" class="icon-button" id="next"><span
+                    aria-hidden="true" class="material-symbols-rounded">arrow_forward</span>
+            </button>
+            <span class="dialog-divider"></span>
+            <button aria-label="Close playground" class="icon-button" id="close-dialog"><span
+                    aria-hidden="true" class="material-symbols-rounded">close</span></button>
+        </div>
+    </div>
+    <div class="inspector">
+        <div class="preview-panel">
+            <div class="stage-heading"><span class="runtime"
+                                             id="runtime">Preview loads on demand</span><span>KOTLIN / WASM</span>
+            </div>
+            <div class="stage">
+                <iframe data-src="playground.html" id="playground"
+                        title="Live interactive Compose component"></iframe>
+                <div class="loading" id="loading"><img alt="" height="48" src="mark.svg" width="48">
+                    <p id="loading-message">Preparing the Compose playground…</p>
+                    <button class="secondary" hidden id="retry">Reload preview</button>
+                </div>
+            </div>
+            <div class="playback">
+                <button class="primary" disabled id="advance">Change value ↗</button>
+                <button class="secondary" disabled id="replay">↺ Replay</button>
+            </div>
+            <fieldset class="spinner-options" hidden id="spinner-options">
+                <legend>Spinner options</legend>
+                <label for="spinner-style">Appearance
+                    <select id="spinner-style">
+                        <option value="standard">Standard</option>
+                        <option value="wavy">Wavy</option>
+                    </select>
+                </label>
+                <label for="spinner-mode">Progress mode
+                    <select id="spinner-mode">
+                        <option value="determinate">Determinate</option>
+                        <option value="indeterminate">Indeterminate</option>
+                    </select>
+                </label>
+            </fieldset>
+            <fieldset class="spinner-options" hidden id="success-options">
+                <legend>Success icon</legend>
+                <label for="custom-success-icon"><input id="custom-success-icon" type="checkbox">Use
+                    a custom icon</label>
+            </fieldset>
+            <div class="motion-preference"><label class="switch-label"><input id="motion"
+                                                                              type="checkbox"><span
+                    aria-hidden="true" class="switch"></span>Reduce motion</label><span
+                    id="motion-note">Follows your device preference.</span></div>
+            <p class="sample-note">Sample data · Your app supplies the state and events.</p></div>
+        <div class="detail-panel"><span class="detail-category" id="selected-group"></span>
+            <h2 id="selected-name"></h2>
+            <p class="detail-description" id="selected-description"></p>
+            <div class="code-heading"><h3>Try it in Compose</h3>
+                <button id="copy">Copy code</button>
+            </div>
+            <pre class="example-code"><code id="code"></code></pre>
+            <details id="api-details">
+                <summary>API &amp; usage notes <span aria-hidden="true">+</span></summary>
+                <div class="api-content"><p class="generated-note">From the Kotlin declaration and
+                    KDoc</p>
+                    <pre><code id="signature"></code></pre>
+                    <div id="guidance"></div>
+                </div>
+            </details>
+            <a class="source-link" href="https://github.com/flatspyder/animatables" id="source">View
+                Kotlin source <span aria-hidden="true"
+                                    class="material-symbols-rounded">north_east</span></a>
+            <p class="sr-only" id="copy-status" role="status"></p></div>
+    </div>
+</dialog>
+<noscript><p class="noscript">Enable JavaScript to search and run the interactive Compose previews.
+    Component previews and setup links remain available.</p></noscript>
+</body>
+</html>

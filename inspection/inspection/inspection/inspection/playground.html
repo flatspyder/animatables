@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>Animatables interactive playground</title>
+    <style>
+        html, body, #playground { width:100%;height:100%;margin:0;overflow:hidden } body{background:#fff8f4}
+    </style>
+</head>
+<body>
+<div id="playground"></div>
+<script>
+    const report = () => window.parent.postMessage({type: 'animatables-error'}, location.origin);
+    window.addEventListener('error', report);
+    window.addEventListener('unhandledrejection', report);
+    // Standalone rendering route for reproducible component snapshots.
+    // Embedded previews continue to receive configuration only from their parent.
+    if (window.parent === window) {
+      window.addEventListener('message', event => {
+        if (event.source !== window || event.origin !== location.origin || event.data?.type !== 'animatables-ready') return;
+        const params = new URLSearchParams(location.search);
+        window.postMessage({type: 'animatables-config', component: params.get('component') || 'NumberPopIn',
+          dark: params.get('dark') === 'true', motion: params.get('motion') === 'true',
+          step: Math.max(0, Math.min(100, Number(params.get('step')) || 0)), replay: 0}, location.origin);
+        document.documentElement.dataset.previewReady = 'true';
+      });
+    }
+</script>
+<script src="wasm-transfer.js"></script>
+<script onerror="report()" src="gallery.js"></script>
+</body>
+</html>

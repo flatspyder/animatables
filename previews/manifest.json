@@ -1,0 +1,29 @@
+{
+  "viewport": {
+    "width": 640,
+    "height": 360
+  },
+  "motion": false,
+  "components": {
+    "AsyncActionButton": "0b1985929e70d64a1ad14401437b4e5b0f54cc9af8903d2c8c22271e275d095b",
+    "RefreshableContent": "e362b376c4bc7aca215b37e0962ef586042b88d65a44f6dfc71d87ff673d8b53",
+    "AudioWaveform": "b77356b7c4c1c4cd14ca974661a0cd07ceca61229c576875f4423e32f826d56b",
+    "AudioLevelIcon": "46ba94017365ef38899031c66e8e477e8ff4013d7aa1d72ba33115c18ff366ca",
+    "AudioActivityRing": "bc9624e1385c3e2601e9e4eee1938df92054f68911b50b2593cf60ee4dfa7a88",
+    "NumberPopIn": "e28910152ac561f87ea50e4c26d9cb4573c7ff19b6ea92990e810c95157e9fe1",
+    "TextStateSwap": "6e6b4e2cd18e93899d4e7049b6b8762af9a636953cedc2533b0c6a23c51ea36f",
+    "IconSwap": "185b52f4752798f2bceac2794b4c1f88243d0245f590269478e989b029a5c2ed",
+    "SuccessCheck": "a36adfc34ebe99acb6d42238e9ad9287103d2c8571dcae3712be75713f269a65",
+    "CompletionSpinner": "230eccb5eecfa5ad62f6d6ee6939b96e3f1b754afc43dc9601e15bb3d490caca",
+    "TextReveal": "0068b6024b77b085fcc6847515555bbc34929a27edba80ce64dd69c7938cb9de",
+    "ShimmerText": "6bb8d2b5345aeab9d83c2b9b9ca24ac1ee66c5cd56ecb8b707e66ffef73f1204",
+    "ThinkingStates": "55e3ec0a9a196ffac4ff76a3cd110fd5f4449809183a1f7221b45dd9959b642b",
+    "StreamingText": "331239d2aafe4a54617439251336d0fb7df31a79843ab738f94f484b07dd28a6",
+    "ReasoningStream": "2819eaa8d5391df5e0b954eb74fa4fe94459ef6a38ee7439b44b2943c17b56b0",
+    "ExpandableCard": "e77dd0a7d7e999dc8e1177184dc24d9d0eaf4f7fb4e9b6d4b2fe1bfe7f76c37c",
+    "MotionContent": "400b326443e872a5eef1b66e65751b227a09c12989d06398eab67e99ea1ae321",
+    "AnimatedStatusText": "07781c4bcaf677c1d7a52b66b1426d101ab70f77c75604f02ff5f20dfff21eca",
+    "AnimatedCountBadge": "16777c00d849f1e98f1d7c31e51dac882b169c625d2a20fab01ce2c0210d7573",
+    "LoadingContent": "e2da5752927d6e4bca2bba775e9c8af42c388e219df5609c3152ec140bd5cab9"
+  }
+}

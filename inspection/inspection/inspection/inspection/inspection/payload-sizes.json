@@ -1,0 +1,57 @@
+[
+  {
+    "file": "39e0e4a49d1b885d8eb5.wasm",
+    "bytes": 2804453,
+    "gzipBytes": 900542
+  },
+  {
+    "file": "658820f72b4617efb380.wasm",
+    "bytes": 8648883,
+    "gzipBytes": 3327337
+  },
+  {
+    "file": "components-data.js",
+    "bytes": 29939,
+    "gzipBytes": 8829
+  },
+  {
+    "file": "gallery.js",
+    "bytes": 527274,
+    "gzipBytes": 98862
+  },
+  {
+    "file": "index.html",
+    "bytes": 37084,
+    "gzipBytes": 6338
+  },
+  {
+    "file": "mark.svg",
+    "bytes": 398,
+    "gzipBytes": 269
+  },
+  {
+    "file": "playground.html",
+    "bytes": 1517,
+    "gzipBytes": 749
+  },
+  {
+    "file": "preview-runtime.js",
+    "bytes": 3745,
+    "gzipBytes": 1276
+  },
+  {
+    "file": "site.js",
+    "bytes": 14799,
+    "gzipBytes": 4052
+  },
+  {
+    "file": "styles.css",
+    "bytes": 32189,
+    "gzipBytes": 7060
+  },
+  {
+    "file": "wasm-transfer.js",
+    "bytes": 1800,
+    "gzipBytes": 803
+  }
+]
