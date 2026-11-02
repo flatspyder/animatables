@@ -61,10 +61,6 @@ kotlin {
     }
 }
 
-val javadocJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("javadoc")
-}
-
 publishing {
     repositories {
         maven {
@@ -73,7 +69,12 @@ publishing {
         }
     }
     publications.withType<MavenPublication>().configureEach {
-        artifact(javadocJar)
+        val javadocTask = tasks.register("${name}JavadocJar", Jar::class) {
+            archiveClassifier.set("javadoc")
+            archiveBaseName.set(artifactId)
+            destinationDirectory.set(layout.buildDirectory.dir("libs/javadoc/$name"))
+        }
+        artifact(javadocTask)
         pom {
             name.set("Animatables")
             description.set("Considered Material 3 Expressive motion for Compose Multiplatform")
